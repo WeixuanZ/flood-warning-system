@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 """Unit test for the station module"""
 
-import pytest
-
 from floodsystem.station import MonitoringStation
 
 

@@ -41,9 +41,9 @@ def fetch_station_data(use_cache=True):
     monitoring stations via a REST API and return retrieved data as a
     JSON object.
 
-    Fetched data is dumped to a cache file so on subsequent call it
-    can optionally be retrieved from the cache file. This is faster
-    than retrieval over the Internet and avoids excessive calls to the
+    Fetched data is dumped to a cache file so on subsequent call it can
+    optionally be retrieved from the cache file. This is faster than
+    retrieval over the Internet and avoids excessive calls to the
     Environment Agency service.
 
     """
@@ -51,12 +51,12 @@ def fetch_station_data(use_cache=True):
     # URL for retrieving data for active stations with river level
     # monitoring (see
     # http://environment.data.gov.uk/flood-monitoring/doc/reference)
-    url = "http://environment.data.gov.uk/flood-monitoring/id/stations?status=Active&parameter=level&qualifier=Stage&_view=full"
+    url = "http://environment.data.gov.uk/flood-monitoring/id/stations?status=Active&parameter=level&qualifier=Stage&_view=full"  # noqa
 
     sub_dir = 'cache'
     try:
         os.makedirs(sub_dir)
-    except:
+    except FileExistsError:
         pass
     cache_file = os.path.join(sub_dir, 'station_data.json')
 
@@ -66,7 +66,7 @@ def fetch_station_data(use_cache=True):
         try:
             # Attempt to load from file
             data = load(cache_file)
-        except:
+        except FileNotFoundError:
             # If load from file fails, fetch and dump to file
             data = fetch(url)
             dump(data, cache_file)
@@ -82,12 +82,12 @@ def fetch_latest_water_level_data(use_cache=False):
     """Fetch latest levels from all 'measures'. Returns JSON object"""
 
     # URL for retrieving data
-    url = "http://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage&qualifier=level"
+    url = "http://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage&qualifier=level"  # noqa
 
     sub_dir = 'cache'
     try:
         os.makedirs(sub_dir)
-    except:
+    except FileExistsError:
         pass
     cache_file = os.path.join(sub_dir, 'level_data.json')
 
@@ -97,7 +97,7 @@ def fetch_latest_water_level_data(use_cache=False):
         try:
             # Attempt to load from file
             data = load(cache_file)
-        except:
+        except FileNotFoundError:
             data = fetch(url)
             dump(data, cache_file)
     else:

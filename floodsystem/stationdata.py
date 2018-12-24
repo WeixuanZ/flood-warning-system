@@ -40,7 +40,7 @@ def build_station_list(use_cache=True):
         try:
             typical_range = (float(e['stageScale']['typicalRangeLow']),
                              float(e['stageScale']['typicalRangeHigh']))
-        except:
+        except Exception:
             typical_range = None
 
         try:
@@ -55,7 +55,7 @@ def build_station_list(use_cache=True):
                 river=river,
                 town=town)
             stations.append(s)
-        except:
+        except Exception:
             # Not all required data on the station was available, so
             # skip over
             pass

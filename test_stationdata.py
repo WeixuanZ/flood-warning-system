@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 """Unit test for the stationdata module"""
 
-import pytest
-
 from floodsystem.stationdata import build_station_list, update_water_levels
 
 
@@ -20,7 +18,7 @@ def test_update_level():
     # Build list of stations
     stations = build_station_list()
     for station in stations:
-        assert station.latest_level == None
+        assert station.latest_level is None
 
     # Update latest level data for all stations
     update_water_levels(stations)

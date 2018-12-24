@@ -5,10 +5,8 @@
 
 import datetime
 
-import pytest
-
 from floodsystem.datafetcher import fetch_measure_levels
-from floodsystem.stationdata import build_station_list, update_water_levels
+from floodsystem.stationdata import build_station_list
 
 
 def test_build_station_list():

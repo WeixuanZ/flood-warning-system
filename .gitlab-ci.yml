@@ -3,9 +3,9 @@ image: python:3.7
 test:
   script:
   # Install Python packages required to run code
-  - pip install dateutils pytest requests numpy matplotlib
+  - pip install dateutils matplotlib numpy pytest requests
 
-    # Run tests
+    # Run unit tests
   - python -m pytest -v .
 
   # Run deliverables

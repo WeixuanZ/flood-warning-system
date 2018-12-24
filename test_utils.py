@@ -1,16 +1,14 @@
 """Unit test for the utils module"""
 
-import pytest
-
 import floodsystem.utils
 
 
 def test_sort():
     """Test sort container by specific index"""
 
-    a = (10, 3,  3)
-    b = (5,  1, -1)
-    c = (1, -3,  4)
+    a = (10, 3, 3)
+    b = (5, 1, -1)
+    c = (1, -3, 4)
     list0 = (a, b, c)
 
     # Test sort on 1st entry
@@ -35,9 +33,9 @@ def test_sort():
 def test_reverse_sort():
     """Test sort container by specific index (reverse)"""
 
-    a = (10, 3,  3)
-    b = (5,  1, -1)
-    c = (1, -3,  4)
+    a = (10, 3, 3)
+    b = (5, 1, -1)
+    c = (1, -3, 4)
     list0 = (a, b, c)
 
     # Test sort on 1st entry

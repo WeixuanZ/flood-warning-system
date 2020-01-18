@@ -33,9 +33,9 @@ def stations_by_distance(stations, p):
     '''
     Function that returns the sorted distances between the input stations and a specified point p.
     Args:
-        param1 (list): List of stations (MonitoringStation object).
+        param1 (list): List of stations (type MonitoringStation).
         param2 (tuple): Coordinate of the origin.
-    Retuens:
+    Returns:
         list: List of (station, distance) sorted by distance.
     '''
 
@@ -43,3 +43,21 @@ def stations_by_distance(stations, p):
     for station in stations:
         distances.append((station.name, station.town, haversine(station.coord, p)))
     return sorted_by_key(distances, 2)
+
+
+def stations_within_radius(stations, centre, r):
+    '''
+    Function that returns a list of all stations (type MonitoringStation) within radius r of a geographic coordinate.
+    Args:
+        param1 (list): List of stations (type MonitoringStation).
+        param2 (tuple): Coordinate of centre in (latitude, longitude).
+        param3 (float): Radius in kilometers.
+    Returns:
+        list: List of stations (type MonitoringStation) within the distance.
+    '''
+
+    stations_within = []
+    for station in stations:
+        if haversine(station.coord, centre) <= r:
+            stations_within.append(station)
+    return stations_within

@@ -138,3 +138,9 @@ def fetch_measure_levels(measure_id, dt):
         levels.append(measure['value'])
 
     return dates, levels
+
+if __name__=="__main__":
+    print("Example of station data:")
+    print(json.dumps(fetch_station_data()['items'][0], indent=4))
+    print("Example of water level data:")
+    print(json.dumps(fetch_latest_water_level_data()['items'][0], indent=4))

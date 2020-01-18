@@ -1,7 +1,7 @@
 # Copyright (C) 2018 Garth N. Wells
 #
 # SPDX-License-Identifier: MIT
-"""This module provides interface for extracting statiob data from
+"""This module provides interface for extracting station data from
 JSON objects fetched from the Internet and
 
 """

@@ -12,13 +12,13 @@ def sorted_by_key(x, i, reverse=False):
 
     Sort on first entry of tuple:
 
-      > sorted_by_key([(1, 2), (5, 1]), 0)
-      >>> [(1, 2), (5, 1)]
+    >>> sorted_by_key([(1, 2), (5, 1)], 0)
+    [(1, 2), (5, 1)]
 
     Sort on second entry of tuple:
 
-      > sorted_by_key([(1, 2), (5, 1]), 1)
-      >>> [(5, 1), (1, 2)]
+    >>> sorted_by_key([(1, 2), (5, 1)], 1)
+    [(5, 1), (1, 2)]
 
     """
 

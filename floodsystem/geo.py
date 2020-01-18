@@ -25,7 +25,8 @@ def haversine(a, b):
     a_lat, a_long = a[0], a[1]
     b_lat, b_long = b[0], b[1]
 
-    return 2 * r * asin(sqrt(sin(radians((b_lat - a_lat) / 2)) ** 2 + cos(radians(a_lat)) * cos(radians(b_lat)) * sin(radians((b_long - a_long) / 2)) ** 2))
+    return 2 * r * asin(sqrt(sin(radians((b_lat - a_lat) / 2)) ** 2 + cos(radians(a_lat)) * cos(radians(b_lat)) * sin(
+        radians((b_long - a_long) / 2)) ** 2))
 
 
 def stations_by_distance(stations, p):
@@ -40,5 +41,5 @@ def stations_by_distance(stations, p):
 
     distances = []
     for station in stations:
-        distances.append((station, haversine(station.coord, p)))
-    return sorted_by_key(distances, 1)
+        distances.append((station.name, station.town, haversine(station.coord, p)))
+    return sorted_by_key(distances, 2)

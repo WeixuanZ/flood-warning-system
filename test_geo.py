@@ -62,3 +62,35 @@ class TestClass:
         assert len(stations_within) == 2
         assert stations_within[0] == "Test Station 1"
         assert stations_within[1] == "Test Station 2"
+
+    def test_rivers_and_stations(self):
+        station1 = MonitoringStation(station_id='test_station_id_1',
+                                     measure_id='test_measure_id_1',
+                                     label='Test Station 1',
+                                     coord=(0., 1.),
+                                     typical_range=(0., 1.),
+                                     river='test_river_1',
+                                     town='test_town_1')
+        station2 = MonitoringStation(station_id='test_station_id_2',
+                                     measure_id='test_measure_id_2',
+                                     label='Test Station 2',
+                                     coord=(1., 1.),
+                                     typical_range=(0., 1.),
+                                     river='test_river_2',
+                                     town='test_town_2')
+        station3 = MonitoringStation(station_id='test_station_id_3',
+                                     measure_id='test_measure_id_3',
+                                     label='Test Station 3',
+                                     coord=(10., 10.),
+                                     typical_range=(0., 1.),
+                                     river='test_river_2',
+                                     town='test_town_3')
+        stations = [station1, station2, station3]
+        rivers = rivers_with_station(stations)
+        assert len(rivers) == 2
+        assert 'test_river_1' in rivers
+        assert 'test_river_2' in rivers
+
+        stations_on_river = stations_by_river(stations)
+        assert sorted(stations_on_river['test_river_2'], key=lambda x: x.name) == [station2, station3]
+        assert stations_on_river['test_river_1'] == [station1]

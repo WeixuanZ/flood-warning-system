@@ -56,11 +56,7 @@ def stations_within_radius(stations, centre, r):
         list: List of stations (type MonitoringStation) within the distance.
     """
 
-    stations_within = []
-    for station in stations:
-        if haversine(station.coord, centre) <= r:
-            stations_within.append(station)
-    return stations_within
+    return [station for station in stations if haversine(station.coord, centre) <= r]
 
 
 def rivers_with_station(stations):

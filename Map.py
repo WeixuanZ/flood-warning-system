@@ -10,7 +10,7 @@ def run():
     stations = build_station_list()
     location_map = Map(stations)
     location_map.build()
-    location_map.show()
+    # location_map.show()
 
 
 if __name__ == "__main__":

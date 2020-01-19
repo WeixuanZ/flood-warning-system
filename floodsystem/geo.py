@@ -105,8 +105,6 @@ class Map:
         output_file("map.html")
         source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lon=[i[1] for i in self.locations]))
         self.p.circle(x="lon", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
-
-    def show(self):
         show(self.p)
 
     def __repr__(self):

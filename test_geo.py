@@ -105,7 +105,7 @@ class TestClass:
                                      typical_range=(0., 1.),
                                      river='test_river_1',
                                      town='test_town_1')
-        map = Map([station1])
-        map.build()
+        location_map = Map([station1])
+        location_map.build()
         assert path.isfile('./map.html')
 

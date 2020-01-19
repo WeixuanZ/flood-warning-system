@@ -7,11 +7,11 @@ geographical data.
 """
 
 from math import sqrt, asin, sin, cos, radians
+from os import environ
 
 from bokeh.models import ColumnDataSource, GMapOptions
 from bokeh.plotting import output_file, show, gmap
 
-from .API_KEY import API_KEY
 from .utils import sorted_by_key  # noqa
 
 

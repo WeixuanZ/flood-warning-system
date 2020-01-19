@@ -8,6 +8,10 @@ geographical data.
 
 from math import sqrt, asin, sin, cos, radians
 
+from bokeh.models import ColumnDataSource, GMapOptions
+from bokeh.plotting import output_file, show, gmap
+
+from .API_KEY import API_KEY
 from .utils import sorted_by_key  # noqa
 
 
@@ -22,11 +26,11 @@ def haversine(a, b):
     """
 
     r = 6371
-    a_lat, a_long = a[0], a[1]
-    b_lat, b_long = b[0], b[1]
+    a_lat, a_lng = a[0], a[1]
+    b_lat, b_lng = b[0], b[1]
 
     return 2 * r * asin(sqrt(sin(radians((b_lat - a_lat) / 2)) ** 2 + cos(radians(a_lat)) * cos(radians(b_lat)) * sin(
-        radians((b_long - a_long) / 2)) ** 2))
+        radians((b_lng - a_lng) / 2)) ** 2))
 
 
 def stations_by_distance(stations, p):
@@ -88,3 +92,15 @@ def stations_by_river(stations):
             stations_on_river[station.river].append(station)
     return stations_on_river
 
+
+def station_location(stations):
+    locations = [i.coord for i in stations]
+
+    output_file("map.html")
+    map_options = GMapOptions(lat=52.2070, lng=0.1131, map_type="roadmap", zoom=11)
+    my_tools = "crosshair,pan,wheel_zoom,box_select,lasso_select,reset,save"
+    p = gmap(API_KEY, map_options, title="Station locations", tools=my_tools)
+
+    source = ColumnDataSource(data=dict(lat=[i[0] for i in locations], lon=[i[1] for i in locations]))
+    p.circle(x="lon", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
+    show(p)

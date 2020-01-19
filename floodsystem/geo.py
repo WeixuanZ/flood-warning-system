@@ -89,13 +89,22 @@ def stations_by_river(stations):
     return stations_on_river
 
 def rivers_by_station_number(stations,N):
-
+    """
+    Finction that returns a list of tuples containing the river name and the number of stations it has.
+    Args: 
+    param1 (list): List of stations (type MonitoringStations)
+    param2 (integer): The number of desired rivers with the largest number of stations
+    Returns:
+        list: tuple of (river, number of stations on river) sorted in descending order
+    """
     stations_on_river = stations_by_river(stations)
     river_with_station_num = []
     for river in stations_on_river:
-        river_with_station_num.append([river,len(stations_on_river[river])])
+        river_with_station_num.append((river,len(stations_on_river[river])))
+
     river_with_station_num = sorted_by_key(river_with_station_num,1)
     river_with_most_station = []
+
     for i in range(len(river_with_station_num)):
         river_with_most_station.append(river_with_station_num[-(i+1)])
         if river_with_station_num[i][1] == river_with_station_num[-(i+2)][1]:

@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MIT
 """Unit test for the geo module"""
 
+from os import path
+
 from floodsystem.geo import *
 from floodsystem.station import MonitoringStation
 
@@ -94,3 +96,15 @@ class TestClass:
         stations_on_river = stations_by_river(stations)
         assert sorted(stations_on_river['test_river_2'], key=lambda x: x.name) == [station2, station3]
         assert stations_on_river['test_river_1'] == [station1]
+
+    def test_map(self):
+        station1 = MonitoringStation(station_id='test_station_id_1',
+                                     measure_id='test_measure_id_1',
+                                     label='Test Station 1',
+                                     coord=(0., 1.),
+                                     typical_range=(0., 1.),
+                                     river='test_river_1',
+                                     town='test_town_1')
+        station_location([station1])
+        assert path.isfile('./map.html')
+

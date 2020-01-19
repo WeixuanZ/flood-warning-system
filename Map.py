@@ -2,13 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from floodsystem.geo import station_location
+from floodsystem.geo import Map
 from floodsystem.stationdata import build_station_list
 
 
 def run():
     stations = build_station_list()
-    station_location(stations)
+    locatin_map = Map(stations)
+    locatin_map.build()
+    locatin_map.show()
 
 
 if __name__ == "__main__":

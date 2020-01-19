@@ -93,14 +93,22 @@ def stations_by_river(stations):
     return stations_on_river
 
 
-def station_location(stations):
-    locations = [i.coord for i in stations]
+class Map:
+    def __init__(self, stations, origin=(52.2070, 0.1131)):
+        self.stations = stations
+        self.locations = [i.coord for i in self.stations]
+        self.options = GMapOptions(lat=origin[0], lng=origin[1], map_type="roadmap", zoom=10)
+        self.tools = "crosshair,pan,wheel_zoom,box_select,lasso_select,reset,save"
+        self.p = gmap(environ.get('API_KEY'), self.options, title="Station locations", tools=self.tools)
 
-    output_file("map.html")
-    map_options = GMapOptions(lat=52.2070, lng=0.1131, map_type="roadmap", zoom=11)
-    my_tools = "crosshair,pan,wheel_zoom,box_select,lasso_select,reset,save"
-    p = gmap(API_KEY, map_options, title="Station locations", tools=my_tools)
+    def build(self):
+        output_file("map.html")
+        source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lon=[i[1] for i in self.locations]))
+        self.p.circle(x="lon", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
 
-    source = ColumnDataSource(data=dict(lat=[i[0] for i in locations], lon=[i[1] for i in locations]))
-    p.circle(x="lon", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
-    show(p)
+    def show(self):
+        show(self.p)
+
+    def __repr__(self):
+        s = "A map containing the following stations: {}".format([i.name for i in self.stations])
+        return s

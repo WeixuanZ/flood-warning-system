@@ -97,7 +97,7 @@ class Map:
     def __init__(self, stations, origin=(52.2070, 0.1131)):
         self.stations = stations
         self.locations = [i.coord for i in self.stations]
-        self.options = GMapOptions(lat=origin[0], lng=origin[1], map_type="roadmap", zoom=10)
+        self.options = GMapOptions(lat=origin[0], lng=origin[1], map_type="roadmap", zoom=11)
         self.tools = "crosshair,pan,wheel_zoom,box_select,lasso_select,reset,save"
         self.p = gmap(environ.get('API_KEY'), self.options, title="Station locations", tools=self.tools)
 
@@ -106,6 +106,8 @@ class Map:
         source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lon=[i[1] for i in self.locations]))
         self.p.circle(x="lon", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
         show(self.p)
+
+    # TODO show method
 
     def __repr__(self):
         s = "A map containing the following stations: {}".format([i.name for i in self.stations])

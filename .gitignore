@@ -11,3 +11,5 @@ __pycache__/
 
 .venv
 .idea/
+
+*/API_KEY.py

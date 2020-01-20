@@ -71,8 +71,16 @@ class MonitoringStation:
         Boolean: Returns whether or not the data is consistent
         """
 
-        if type(self._typical_range) == (float,float) and self._typical_range != (0,0):
+        if type(self._typical_range) == tuple and self._typical_range != (0,0):
             if self._typical_range[0] < self.typical_range[1]:
                 return True
-        else:
-            return False
+        print(self.typical_range)
+        return False
+
+def inconsistent_typical_range_stations(stations):
+    
+    inconsistent_stations = []
+    for station in stations:
+        if station.typical_range_consistent() == False:
+            inconsistent_stations.append(station._name)
+    return sorted(inconsistent_stations)

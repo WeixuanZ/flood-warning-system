@@ -94,6 +94,7 @@ def stations_by_river(stations):
 
 
 class Map:
+    """This class represents a map of stations."""
     def __init__(self, stations, origin=(52.2070, 0.1131)):
         self.stations = stations
         self.locations = [i.coord for i in self.stations]
@@ -115,10 +116,8 @@ class Map:
             ("Town", "@town"),
             ("(Latitude,Longitude)", "(@lat, @lng)")
         ])
-        self.plot.tools.append(hover_tool)
+        self.plot.add_tools(hover_tool)
         show(self.plot)
-
-    # TODO show method
 
     def __repr__(self):
         s = "A map containing the following stations: {}".format([i.name for i in self.stations])

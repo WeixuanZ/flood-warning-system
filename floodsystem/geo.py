@@ -9,7 +9,7 @@ geographical data.
 from math import sqrt, asin, sin, cos, radians
 from os import environ
 
-from bokeh.models import ColumnDataSource, GMapOptions
+from bokeh.models import ColumnDataSource, GMapOptions, HoverTool
 from bokeh.plotting import output_file, show, gmap
 
 from .utils import sorted_by_key  # noqa
@@ -99,13 +99,24 @@ class Map:
         self.locations = [i.coord for i in self.stations]
         self.options = GMapOptions(lat=origin[0], lng=origin[1], map_type="roadmap", zoom=11)
         self.tools = "crosshair,pan,wheel_zoom,box_select,lasso_select,reset,save"
-        self.p = gmap(environ.get('API_KEY'), self.options, title="Station locations", tools=self.tools)
+        self.plot = gmap(environ.get('API_KEY'), self.options, title="Station locations", tools=self.tools,
+                      active_scroll="wheel_zoom")
 
     def build(self):
         output_file("map.html")
-        source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lon=[i[1] for i in self.locations]))
-        self.p.circle(x="lon", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
-        show(self.p)
+        source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lng=[i[1] for i in self.locations],
+                                            name=[i.name for i in self.stations],
+                                            river=[i.river for i in self.stations],
+                                            town=[i.town for i in self.stations]))
+        self.plot.circle(x="lng", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
+        hover_tool = HoverTool(tooltips=[
+            ("Station Name", "@name"),
+            ("River Name", "@river"),
+            ("Town", "@town"),
+            ("(Latitude,Longitude)", "(@lat, @lng)")
+        ])
+        self.plot.tools.append(hover_tool)
+        show(self.plot)
 
     # TODO show method
 

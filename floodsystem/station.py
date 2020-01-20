@@ -60,3 +60,19 @@ class MonitoringStation:
         d += "   river:         {}\n".format(self.river)
         d += "   typical range: {}".format(self.typical_range)
         return d
+
+    def typical_range_consistent(self):
+        """
+        This method checks whether the data it receives about the typical ranges are consistent(That data is available 
+        and the low range is lower than the high range).
+        Args:
+        param 1 (MonitoringStation): The instance of the class itself.
+        Returns:
+        Boolean: Returns whether or not the data is consistent
+        """
+
+        if type(self._typical_range) == (float,float) and self._typical_range != (0,0):
+            if self._typical_range[0] < self.typical_range[1]:
+                return True
+        else:
+            return False

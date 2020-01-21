@@ -7,7 +7,6 @@ geographical data.
 """
 
 from math import sqrt, asin, sin, cos, radians
-
 from .utils import sorted_by_key  # noqa
 
 

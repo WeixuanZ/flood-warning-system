@@ -92,32 +92,6 @@ def stations_by_river(stations):
             stations_on_river[station.river].append(station)
     return stations_on_river
 
-
-def rivers_by_station_number(stations, N):
-    """
-    Finction that returns a list of tuples containing the river name and the number of stations it has.
-    Args: 
-        param1 (list): List of stations (type MonitoringStations)
-        param2 (int): The number of desired rivers with the largest number of stations
-    Returns:
-        list: tuple of (river, number of stations on river) sorted in descending order
-    """
-    stations_on_river = stations_by_river(stations)
-    river_with_station_num = []
-    for river in stations_on_river:
-        river_with_station_num.append((river, len(stations_on_river[river])))
-
-    river_with_station_num = sorted_by_key(river_with_station_num, 1)
-    river_with_most_station = []
-
-    for i in range(len(river_with_station_num)):
-        river_with_most_station.append(river_with_station_num[-(i + 1)])
-        if river_with_station_num[i][1] == river_with_station_num[-(i + 2)][1]:
-            pass
-        elif i >= N:
-            break
-    return river_with_most_station
-
 class Map:
     """This class represents a map of stations."""
     def __init__(self, stations, origin=(52.2070, 0.1131)):
@@ -145,5 +119,19 @@ class Map:
         show(self.plot)
 
     def __repr__(self):
-        s = "A map containing the following stations: {}".format([i.name for i in self.stations])
-        return s
+        return "A map containing the following stations: {}".format([i.name for i in self.stations])
+        
+
+def rivers_by_station_number(stations, N):
+    """
+    Function that returns a list of tuples containing the river name and the number of stations it has.
+    Args: 
+        param1 (list): List of stations (type MonitoringStations)
+        param2 (int): The number of desired rivers with the largest number of stations
+    Returns:
+        list: tuple of (river, number of stations on river) sorted in descending order
+    """
+
+    rivers_and_num = sorted_by_key([(i, len(stations_by_river(stations)[i])) for i in stations_by_river(stations)], 1)
+    min_num = rivers_and_num[-N][1] if N <= len(rivers_and_num) else rivers_and_num[1][1]
+    return sorted([i for i in rivers_and_num if i[1] >= min_num], key=lambda x: (-x[1], x[0]))

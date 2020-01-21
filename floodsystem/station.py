@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Garth N. Wells Modified by Weixuan Zhang
+# Copyright (C) 2018 Garth N. Wells Modified by Weixuan Zhang & Ghifari Pradana
 #
 # SPDX-License-Identifier: MIT
 """This module provides a model for a monitoring station, and tools
@@ -78,9 +78,16 @@ class MonitoringStation:
         return False
 
 def inconsistent_typical_range_stations(stations):
-    
+    """
+    This function checks takes in the list of stations and checks to make sure the typical
+    range for each are consistent.
+    Args:
+        param1 (list): List of stations (type MonitoringStation).
+    Returns:
+        list: List (type String) of all the stations with inconsistent typical ranges in alphabetical order
+    """
     inconsistent_stations = []
     for station in stations:
         if station.typical_range_consistent() == False:
-            inconsistent_stations.append(station._name)
+            inconsistent_stations.append(station.name)
     return sorted(inconsistent_stations)

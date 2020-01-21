@@ -7,6 +7,10 @@ geographical data.
 """
 
 from math import sqrt, asin, sin, cos, radians
+from os import environ
+
+from bokeh.models import ColumnDataSource, GMapOptions, HoverTool
+from bokeh.plotting import output_file, show, gmap
 
 from .utils import sorted_by_key  # noqa
 
@@ -22,11 +26,11 @@ def haversine(a, b):
     """
 
     r = 6371
-    a_lat, a_long = a[0], a[1]
-    b_lat, b_long = b[0], b[1]
+    a_lat, a_lng = a[0], a[1]
+    b_lat, b_lng = b[0], b[1]
 
     return 2 * r * asin(sqrt(sin(radians((b_lat - a_lat) / 2)) ** 2 + cos(radians(a_lat)) * cos(radians(b_lat)) * sin(
-        radians((b_long - a_long) / 2)) ** 2))
+        radians((b_lng - a_lng) / 2)) ** 2))
 
 
 def stations_by_distance(stations, p):
@@ -113,3 +117,33 @@ def rivers_by_station_number(stations, N):
         elif i >= N:
             break
     return river_with_most_station
+
+class Map:
+    """This class represents a map of stations."""
+    def __init__(self, stations, origin=(52.2070, 0.1131)):
+        self.stations = stations
+        self.locations = [i.coord for i in self.stations]
+        self.options = GMapOptions(lat=origin[0], lng=origin[1], map_type="roadmap", zoom=11)
+        self.tools = "crosshair,pan,wheel_zoom,box_select,lasso_select,reset,save"
+        self.plot = gmap(environ.get('API_KEY'), self.options, title="Station locations", tools=self.tools,
+                      active_scroll="wheel_zoom")
+
+    def build(self):
+        output_file("map.html")
+        source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lng=[i[1] for i in self.locations],
+                                            name=[i.name for i in self.stations],
+                                            river=[i.river for i in self.stations],
+                                            town=[i.town for i in self.stations]))
+        self.plot.circle(x="lng", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
+        hover_tool = HoverTool(tooltips=[
+            ("Station Name", "@name"),
+            ("River Name", "@river"),
+            ("Town", "@town"),
+            ("(Latitude,Longitude)", "(@lat, @lng)")
+        ])
+        self.plot.add_tools(hover_tool)
+        show(self.plot)
+
+    def __repr__(self):
+        s = "A map containing the following stations: {}".format([i.name for i in self.stations])
+        return s

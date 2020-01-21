@@ -74,7 +74,6 @@ class MonitoringStation:
         if type(self._typical_range) == tuple and self._typical_range != (0.,0.):
             if self._typical_range[0] < self.typical_range[1]:
                 return True
-        print(self.typical_range + "so it failed")
         return False
 
 def inconsistent_typical_range_stations(stations):

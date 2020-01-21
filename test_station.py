@@ -27,7 +27,7 @@ def test_create_monitoring_station():
     assert s.town == town
 
 def test_typical_range_consistent():
-    assert MonitoringStation("111", "111", "station1", (0.,1.), (1,4), "River 1", "Town 1").typical_range == True
+    assert MonitoringStation("111", "111", "station1", (0.,1.), (1.,4.), "River 1", "Town 1").typical_range == True
     assert MonitoringStation("111", "111", "station1", (0.,1.), None, "River 1", "Town 1") == False
     assert MonitoringStation("111", "111", "station1", (0.,1.), (1,-4), "River 1", "Town 1") == False
     assert MonitoringStation("111", "111", "station1", (0.,1.), (0.5,0.2), "River 1", "Town 1") == False

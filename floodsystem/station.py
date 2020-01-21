@@ -12,7 +12,6 @@ class MonitoringStation:
 
     def __init__(self, station_id, measure_id, label, coord, typical_range,
                  river, town):
-
         self._station_id = station_id
         self._measure_id = measure_id
 
@@ -32,21 +31,27 @@ class MonitoringStation:
     @property
     def station_id(self):
         return self._station_id
+
     @property
     def measure_id(self):
         return self._measure_id
+
     @property
     def name(self):
         return self._name
+
     @property
     def coord(self):
         return self._coord
+
     @property
     def typical_range(self):
         return self._typical_range
+
     @property
     def river(self):
         return self._river
+
     @property
     def town(self):
         return self._town
@@ -66,15 +71,14 @@ class MonitoringStation:
         This method checks whether the data it receives about the typical ranges are consistent(That data is available 
         and the low range is lower than the high range).
         Args:
-        param 1 (MonitoringStation): The instance of the class itself.
+            param1 (MonitoringStation): The instance of the class itself.
         Returns:
-        Boolean: Returns whether or not the data is consistent
+            Boolean: Returns whether or not the data is consistent
         """
 
-        if type(self._typical_range) == tuple and self._typical_range != (0.,0.):
-            if self._typical_range[0] < self.typical_range[1]:
-                return True
-        return False
+        return type(self._typical_range) == tuple and self._typical_range != (0., 0.) and self._typical_range[0] < \
+               self.typical_range[1]
+
 
 def inconsistent_typical_range_stations(stations):
     """

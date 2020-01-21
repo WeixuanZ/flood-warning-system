@@ -94,38 +94,42 @@ class TestClass:
         stations_on_river = stations_by_river(stations)
         assert sorted(stations_on_river['test_river_2'], key=lambda x: x.name) == [station2, station3]
         assert stations_on_river['test_river_1'] == [station1]
-    
+
     def test_rivers_by_station_number(self):
         station1 = MonitoringStation(station_id="111",
                                      measure_id="111",
                                      label="Station 1",
-                                     coord=(0,1),
-                                     typical_range=(0.1,0.4),
+                                     coord=(0, 1),
+                                     typical_range=(0.1, 0.4),
                                      river="River 1",
                                      town="Town 1")
         station2 = MonitoringStation(station_id="222",
                                      measure_id="222",
                                      label="Station 2",
-                                     coord=(1,1),
-                                     typical_range=(0.3,0.8),
+                                     coord=(1, 1),
+                                     typical_range=(0.3, 0.8),
                                      river="River 2",
                                      town="Town 2")
         station3 = MonitoringStation(station_id="333",
                                      measure_id="333",
                                      label="Station 3",
-                                     coord=(0,3),
-                                     typical_range=(0.43,0.88),
+                                     coord=(0, 3),
+                                     typical_range=(0.43, 0.88),
                                      river="River 2",
                                      town="Town 3")
         station4 = MonitoringStation(station_id="444",
                                      measure_id="444",
                                      label="Station 4",
-                                     coord=(8,3),
-                                     typical_range=(0.1,0.9),
+                                     coord=(8, 3),
+                                     typical_range=(0.1, 0.9),
                                      river="River 3",
                                      town="Town 4")
-        assert rivers_by_station_number([station1], 1) == (("River 1",1))
-        assert rivers_by_station_number([station1, station2, station3],1) == (("River 2",2))
-        assert rivers_by_station_number([station1, station2, station3],2) == (("River 2",2),("River 1", 1))
-        assert rivers_by_station_number([station1, station2, station3,station4],3) == (("River 2",2),("River 1", 1), ("River 3",1))
-        assert rivers_by_station_number([station1, station2, station3,station4],4) == (("River 2",2),("River 1", 1), ("River 3",1))
+        assert rivers_by_station_number([station1], 1) == [("River 1", 1)]
+        assert rivers_by_station_number([station1, station2, station3], 1) == [("River 2", 2)]
+        assert rivers_by_station_number([station1, station2, station3], 2) == [("River 2", 2), ("River 1", 1)]
+        assert rivers_by_station_number([station1, station2, station3, station4], 2) == [("River 2", 2), ("River 1", 1),
+                                                                                         ("River 3", 1)]
+        assert rivers_by_station_number([station1, station2, station3, station4], 3) == [("River 2", 2), ("River 1", 1),
+                                                                                         ("River 3", 1)]
+        assert rivers_by_station_number([station1, station2, station3, station4], 4) == [("River 2", 2), ("River 1", 1),
+                                                                                         ("River 3", 1)]

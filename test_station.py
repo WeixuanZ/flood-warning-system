@@ -62,9 +62,9 @@ def test_inconsistent_typical_range_stations():
                                  river="River 3",
                                  town="Town 4")
     assert inconsistent_typical_range_stations([station1]) == []
-    assert inconsistent_typical_range_stations([station1, station2]) == (station2.name)
-    assert inconsistent_typical_range_stations([station2, station3]) == (station2.name, station3.name)
-    assert inconsistent_typical_range_stations([station4, station2, station3]) == (station2.name, station3.name, station4.name)
+    assert inconsistent_typical_range_stations([station1, station2]) == [station2.name]
+    assert inconsistent_typical_range_stations([station2, station3]) == [station2.name, station3.name]
+    assert inconsistent_typical_range_stations([station4, station2, station3]) == [station2.name, station3.name, station4.name]
 
 
 

@@ -93,10 +93,8 @@ class TestClass:
         assert station1.relative_water_level() == 1.
         station1.latest_level = 0.5
         assert station1.relative_water_level() == 0.5
-        station1.latest_level = -1.
-        assert station1.relative_water_level() == 0.
         station1.latest_level = 2.
-        assert station1.relative_water_level() == 1.
+        assert station1.relative_water_level() == 2.
 
         station2.latest_level = 0.5
         assert station2.relative_water_level() is None

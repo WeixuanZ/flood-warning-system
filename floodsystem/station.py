@@ -85,8 +85,7 @@ class MonitoringStation:
         Returns:
             float: 0.0 (corresponds to a level at the typical low) to 1.0 (corresponds to a level at the typical high)
         """
-        return (max(min(self.latest_level, self.typical_range[1]), self.typical_range[0]) - self.typical_range[0]) / (
-                self.typical_range[1] - self.typical_range[
+        return (self.latest_level - self.typical_range[0]) / (self.typical_range[1] - self.typical_range[
             0]) if self.latest_level is not None and self.typical_range_consistent() is True else None
 
 

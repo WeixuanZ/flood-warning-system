@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Garth N. Wells Modified by Ghifari Pradana
+# Copyright (C) 2018 Garth N. Wells Modified by Ghifari Pradana & Weixuan Zhang
 #
 # SPDX-License-Identifier: MIT
 """Unit test for the station module"""

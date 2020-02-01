@@ -6,8 +6,8 @@ from floodsystem.stationdata import build_station_list
 
 stations = build_station_list()
 
-# data, demo, prediction = predict('Cam', dataset_size=1000, lookback=100, iteration=30, display=300, use_pretrained=False, batch_size=256, epoch=20)
-data, demo, prediction = predict(stations[25].name, dataset_size=1000, lookback=100, iteration=50, display=300, use_pretrained=False, batch_size=256, epoch=20)
+# data, demo, prediction = predict('Cam', dataset_size=1000, lookback=2500, iteration=100, display=300, use_pretrained=False, batch_size=256, epoch=20)
+data, demo, prediction = predict(stations[5].name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=False, batch_size=256, epoch=20)
 
 plt.plot(np.arange(1, len(data) + 1, 1), data)
 plt.plot(np.arange(1, len(data) + 1, 1), demo)

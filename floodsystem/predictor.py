@@ -61,7 +61,7 @@ def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/p
     return model
 
 
-def predict(station_name, dataset_size=500, lookback=20, iteration=30, display=100, use_pretrained=True, batch_size=128, epoch=100):
+def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=True, batch_size=256, epoch=20):
     levels = fetch_levels(station_name, dataset_size)
     scalar.fit(levels.reshape(-1,1))  # fit the scalar on across the entire dataset
     if use_pretrained:

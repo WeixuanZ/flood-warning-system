@@ -66,15 +66,15 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
     scalar.fit(levels.reshape(-1,1))  # fit the scalar on across the entire dataset
     if use_pretrained:
         try:
-            model = keras.models.load_model('./floodsystem/cache/predictor_model.hdf5')
+            model = keras.models.load_model('./floodsystem/cache/{}.hdf5'.format(station_name))
         except:
-            print('No pre-trained model found, training a model for {} now.'.format(station_name))
+            print('No pre-trained model for {} found, training a model for it now.'.format(station_name))
             x_train, y_train = data_prep(levels, lookback)
-            model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch)
+            model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch, save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
     else:
         print('Training a model for {} now.'.format(station_name))
         x_train, y_train = data_prep(levels, lookback)
-        model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch)
+        model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch, save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
 
     # prediction of future <iteration> readings, based on the last <lookback> values
     predictions = None

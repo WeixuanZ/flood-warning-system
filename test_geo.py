@@ -97,18 +97,6 @@ class TestClass:
         assert sorted(stations_on_river['test_river_2'], key=lambda x: x.name) == [station2, station3]
         assert stations_on_river['test_river_1'] == [station1]
 
-    def test_map(self):
-        station1 = MonitoringStation(station_id='test_station_id_1',
-                                     measure_id='test_measure_id_1',
-                                     label='Test Station 1',
-                                     coord=(0., 1.),
-                                     typical_range=(0., 1.),
-                                     river='test_river_1',
-                                     town='test_town_1')
-        location_map = Map([station1])
-        location_map.build()
-        assert path.isfile('./map.html')
-
 
     def test_rivers_by_station_number(self):
         station1 = MonitoringStation(station_id="111",

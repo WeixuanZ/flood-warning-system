@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout
+from keras.layers import Dense, LSTM
 
 from .datafetcher import fetch_measure_levels
 from .stationdata import build_station_list
@@ -61,20 +61,33 @@ def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/p
     return model
 
 
-def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=True, batch_size=256, epoch=20):
+def train_all(stations, dataset_size=1000, lookback=2000, batch_size=256, epoch=20):
+    for i, station in enumerate(stations):
+        print('Training for {} ({}/{})'.format(station.name, i, len(stations)))
+        levels = fetch_levels(station.name, dataset_size)
+        scalar.fit(levels.reshape(-1, 1))  # fit the scalar on across the entire dataset
+        x_train, y_train = data_prep(levels, lookback)
+        train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
+                    save_file='./floodsystem/cache/{}.hdf5'.format(station.name))
+
+
+def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=True,
+            batch_size=256, epoch=20):
     levels = fetch_levels(station_name, dataset_size)
-    scalar.fit(levels.reshape(-1,1))  # fit the scalar on across the entire dataset
+    scalar.fit(levels.reshape(-1, 1))  # fit the scalar on across the entire dataset
     if use_pretrained:
         try:
             model = keras.models.load_model('./floodsystem/cache/{}.hdf5'.format(station_name))
         except:
             print('No pre-trained model for {} found, training a model for it now.'.format(station_name))
             x_train, y_train = data_prep(levels, lookback)
-            model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch, save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
+            model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
+                                save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
     else:
         print('Training a model for {} now.'.format(station_name))
         x_train, y_train = data_prep(levels, lookback)
-        model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch, save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
+        model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
+                            save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
 
     # prediction of future <iteration> readings, based on the last <lookback> values
     predictions = None
@@ -82,18 +95,18 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
     levels = levels.reshape(1, 1, lookback)
     for i in range(iteration):
         prediction = model.predict(levels)
-        levels = np.append(levels[:, :, -lookback+1:], prediction.reshape(1, 1, 1), axis=2)
+        levels = np.append(levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         predictions = np.append(predictions, prediction, axis=0) if predictions is not None else prediction
 
     # demo of prediction of the last 100 data points, which is based on the <lookback> values before the final 100 points
     demo = None
     levels = fetch_levels(station_name, dataset_size)
-    levels = scalar.transform(levels[-display-lookback:-display].reshape(-1, 1)).reshape(1, 1, lookback)
+    levels = scalar.transform(levels[-display - lookback:-display].reshape(-1, 1)).reshape(1, 1, lookback)
     for i in range(display):
         prediction = model.predict(levels)
-        levels = np.append(levels[:, :, -lookback+1:], prediction.reshape(1, 1, 1), axis=2)
+        levels = np.append(levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         demo = np.append(demo, prediction, axis=0) if demo is not None else prediction
 
     # return on last 100 data points, the demo values, and future predictions
-    return fetch_levels(station_name, dataset_size)[-display:], scalar.inverse_transform(demo), scalar.inverse_transform(predictions)
-
+    return fetch_levels(station_name, dataset_size)[-display:], scalar.inverse_transform(
+        demo), scalar.inverse_transform(predictions)

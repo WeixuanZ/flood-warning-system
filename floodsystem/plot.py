@@ -54,7 +54,7 @@ def plot_water_levels(station, dates, levels):
         param3 (list): The corresponding water level for each date, y-axis
     """
     output_file(station.name + ".html")
-    p = figure(title=station.name, x_axis_label="Time", y_axis_label="Water level (m)")
+    p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
     p.line(dates, levels, line_width=2)
     p.xaxis.formatter = DatetimeTickFormatter(
         hours=["%d %B %Y"],
@@ -76,7 +76,7 @@ def plot_water_levels_multiple(stations, dt):
     plots = []
     for station in stations:
         dates, levels = fetch_measure_levels(station.measure_id, dt=timedelta(days=dt))
-        p = figure(title=station.name, x_axis_label="Time", y_axis_label="Water level (m)")
+        p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
         p.line(dates, levels, line_width=2)
         low = Span(location=station.typical_range[0], dimension='width', line_color='gray', line_dash="4 4", line_width=2)
         p.add_layout(low)

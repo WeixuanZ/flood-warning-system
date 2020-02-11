@@ -14,22 +14,27 @@ from .datafetcher import fetch_measure_levels
 from .stationdata import build_station_list
 
 scalar = MinMaxScaler(feature_range=(0, 1))
-np.random.seed(6)
+np.random.seed(6)  # for reproducibility
 
 
-# TODO: display time
-def fetch_levels(station_name, dt):
+def fetch_levels(station_name, dt, return_date=False):
     stations = build_station_list()
     try:
         station = next(s for s in stations if s.name == station_name)
     except StopIteration:
         print("Station {} could not be found".format(station_name))
         return
-    _, data = fetch_measure_levels(station.measure_id, dt=datetime.timedelta(days=dt))
-    return np.array(data)
+    date, data = fetch_measure_levels(station.measure_id, dt=datetime.timedelta(days=dt))
+
+    if return_date:
+        return date[::-1], np.array(data)[::-1]
+    else:
+        return np.array(data)[::-1]
 
 
-def data_prep(data, lookback):
+def data_prep(data, lookback, exclude=0):
+    if exclude != 0:
+        data = data[:-exclude]
     scaled_levels = scalar.transform(data.reshape(-1, 1))
     x = np.array([scaled_levels[i - lookback:i, 0] for i in range(lookback, len(scaled_levels))])
     x = np.reshape(x, (x.shape[0], 1, x.shape[1]))  # samples, time steps, features
@@ -48,11 +53,12 @@ def build_model(lookback):
     return model
 
 
-def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/predictor_model.hdf5'):
+def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/predictor_model.hdf5', show_loss=False):
     history = model.fit(x, y, batch_size=batch_size, epochs=epoch, verbose=1)
-    plt.plot(history.history['loss'])
-    plt.ylabel('loss')
-    plt.show()
+    if show_loss:
+        plt.plot(history.history['loss'])
+        plt.ylabel('loss')
+        plt.show()
     try:
         model.save(save_file)
     except OSError:
@@ -70,6 +76,8 @@ def train_all(stations, dataset_size=1000, lookback=2000, batch_size=256, epoch=
         train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
                     save_file='./floodsystem/cache/{}.hdf5'.format(station.name))
 
+
+# TODO Copy arrays instead of fetching new ones
 
 def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=True,
             batch_size=256, epoch=20):
@@ -98,7 +106,7 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
         levels = np.append(levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         predictions = np.append(predictions, prediction, axis=0) if predictions is not None else prediction
 
-    # demo of prediction of the last 100 data points, which is based on the <lookback> values before the final 100 points
+    # demo of prediction of the last <display> data points, which is based on the <lookback> values before the final 100 points
     demo = None
     levels = fetch_levels(station_name, dataset_size)
     levels = scalar.transform(levels[-display - lookback:-display].reshape(-1, 1)).reshape(1, 1, lookback)
@@ -107,6 +115,8 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
         levels = np.append(levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         demo = np.append(demo, prediction, axis=0) if demo is not None else prediction
 
-    # return on last 100 data points, the demo values, and future predictions
-    return fetch_levels(station_name, dataset_size)[-display:], scalar.inverse_transform(
+    # return on last <display> data points, the demo values, and future predictions
+    date, data = fetch_levels(station_name, dataset_size, return_date=True)
+    date, data = (date[-display:], [date[-1] + datetime.timedelta(minutes=15)*i for i in range(iteration)]), data[-display:]
+    return date, data, scalar.inverse_transform(
         demo), scalar.inverse_transform(predictions)

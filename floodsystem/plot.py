@@ -39,7 +39,7 @@ class Map:
             ("(Latitude,Longitude)", "(@lat, @lng)")
         ])
         self.plot.add_tools(hover_tool)
-        show(self.plot)
+        return self.plot
 
     def __repr__(self):
         return "A map containing the following stations: {}".format([i.name for i in self.stations])
@@ -63,7 +63,7 @@ def plot_water_levels(station, dates, levels):
         years=["%d %B %Y"],
     )
     p.xaxis.major_label_orientation = np.pi / 4
-    show(p)
+    return p
 
 
 def plot_water_levels_multiple(stations, dt):
@@ -89,4 +89,4 @@ def plot_water_levels_multiple(stations, dt):
 
     output_file("grid.html")
     grid = gridplot(plots, ncols=3, plot_width=300, plot_height=250)
-    show(grid)
+    return grid

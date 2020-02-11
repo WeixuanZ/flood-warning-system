@@ -27,9 +27,9 @@ def fetch_levels(station_name, dt, return_date=False):
     date, data = fetch_measure_levels(station.measure_id, dt=datetime.timedelta(days=dt))
 
     if return_date:
-        return date[::-1], np.array(data)[::-1]
+        return date[::-1], np.array(data[::-1])
     else:
-        return np.array(data)[::-1]
+        return np.array(data[::-1])
 
 
 def data_prep(data, lookback, exclude=0):
@@ -115,5 +115,5 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
 
     # return on last <display> data points, the demo values, and future predictions
     date = (date[-display:], [date[-1] + datetime.timedelta(minutes=15) * i for i in range(iteration)])
-    return date, levels[-display:], scalar.inverse_transform(
-        demo), scalar.inverse_transform(predictions)
+    return date, (levels[-display:], scalar.inverse_transform(
+        demo), scalar.inverse_transform(predictions))

@@ -77,12 +77,11 @@ def train_all(stations, dataset_size=1000, lookback=2000, batch_size=256, epoch=
                     save_file='./floodsystem/cache/{}.hdf5'.format(station.name))
 
 
-# TODO Copy arrays instead of fetching new ones
-
 def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=True,
             batch_size=256, epoch=20):
-    levels = fetch_levels(station_name, dataset_size)
+    date, levels = fetch_levels(station_name, dataset_size, return_date=True)
     scalar.fit(levels.reshape(-1, 1))  # fit the scalar on across the entire dataset
+
     if use_pretrained:
         try:
             model = keras.models.load_model('./floodsystem/cache/{}.hdf5'.format(station_name))
@@ -99,24 +98,22 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
 
     # prediction of future <iteration> readings, based on the last <lookback> values
     predictions = None
-    levels = scalar.transform(levels[-lookback:].reshape(-1, 1))
-    levels = levels.reshape(1, 1, lookback)
+    pred_levels = scalar.transform(levels[-lookback:].reshape(-1, 1))
+    pred_levels = pred_levels.reshape(1, 1, lookback)
     for i in range(iteration):
-        prediction = model.predict(levels)
-        levels = np.append(levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
+        prediction = model.predict(pred_levels)
+        pred_levels = np.append(pred_levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         predictions = np.append(predictions, prediction, axis=0) if predictions is not None else prediction
 
     # demo of prediction of the last <display> data points, which is based on the <lookback> values before the final 100 points
     demo = None
-    levels = fetch_levels(station_name, dataset_size)
-    levels = scalar.transform(levels[-display - lookback:-display].reshape(-1, 1)).reshape(1, 1, lookback)
+    demo_levels = scalar.transform(levels[-display - lookback:-display].reshape(-1, 1)).reshape(1, 1, lookback)
     for i in range(display):
-        prediction = model.predict(levels)
-        levels = np.append(levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
+        prediction = model.predict(demo_levels)
+        demo_levels = np.append(demo_levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         demo = np.append(demo, prediction, axis=0) if demo is not None else prediction
 
     # return on last <display> data points, the demo values, and future predictions
-    date, data = fetch_levels(station_name, dataset_size, return_date=True)
-    date, data = (date[-display:], [date[-1] + datetime.timedelta(minutes=15)*i for i in range(iteration)]), data[-display:]
-    return date, data, scalar.inverse_transform(
+    date = (date[-display:], [date[-1] + datetime.timedelta(minutes=15) * i for i in range(iteration)])
+    return date, levels[-display:], scalar.inverse_transform(
         demo), scalar.inverse_transform(predictions)

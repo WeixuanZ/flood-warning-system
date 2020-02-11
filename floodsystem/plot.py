@@ -8,7 +8,7 @@ from os import environ
 import numpy as np
 from bokeh.io import output_file, show
 from bokeh.layouts import gridplot
-from bokeh.models import ColumnDataSource, GMapOptions, HoverTool, DatetimeTickFormatter
+from bokeh.models import ColumnDataSource, GMapOptions, HoverTool, DatetimeTickFormatter, Span, BoxAnnotation
 from bokeh.plotting import figure, gmap
 
 from .datafetcher import fetch_measure_levels
@@ -78,6 +78,16 @@ def plot_water_levels_multiple(stations, dt):
         dates, levels = fetch_measure_levels(station.measure_id, dt=timedelta(days=dt))
         p = figure(title=station.name, x_axis_label="Time", y_axis_label="Water level (m)")
         p.line(dates, levels, line_width=2)
+        low = Span(location=station.typical_range[0], dimension='width', line_color='gray', line_dash="4 4", line_width=2)
+        p.add_layout(low)
+        high = Span(location=station.typical_range[1], dimension='width', line_color='gray', line_dash="4 4", line_width=2)
+        p.add_layout(high)
+        low_box = BoxAnnotation(top=station.typical_range[0], fill_alpha=0.1, fill_color='red')
+        mid_box = BoxAnnotation(bottom=station.typical_range[0], top=station.typical_range[1], fill_alpha=0.1, fill_color='green')
+        high_box = BoxAnnotation(bottom=station.typical_range[1], fill_alpha=0.1, fill_color='red')
+        p.add_layout(low_box)
+        p.add_layout(mid_box)
+        p.add_layout(high_box)
         p.xaxis.formatter = DatetimeTickFormatter(
             hours=["%d %B %Y"],
             days=["%d %B %Y"],

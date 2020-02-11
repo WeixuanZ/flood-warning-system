@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 
 def run():
     stations = build_station_list()
-    station = stations[0]
     update_water_levels(stations)
     high_risk_stations = stations_highest_rel_level(stations,5)
     dt = 10

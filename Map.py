@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from floodsystem.geo import Map
+from floodsystem.plot import Map
 from floodsystem.stationdata import build_station_list
 
 

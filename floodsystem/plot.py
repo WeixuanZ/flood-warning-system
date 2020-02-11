@@ -2,12 +2,16 @@
 #
 # SPDX-License-Identifier: MIT
 
+from datetime import timedelta
 from os import environ
 
 import numpy as np
 from bokeh.io import output_file, show
+from bokeh.layouts import gridplot
 from bokeh.models import ColumnDataSource, GMapOptions, HoverTool, DatetimeTickFormatter
 from bokeh.plotting import figure, gmap
+
+from .datafetcher import fetch_measure_levels
 
 
 class Map:
@@ -60,3 +64,29 @@ def plot_water_levels(station, dates, levels):
     )
     p.xaxis.major_label_orientation = np.pi / 4
     show(p)
+
+
+def plot_water_levels_multiple(stations, dt):
+    """
+    Function that displays a grid of graphs of the water level over time for a given list of stations.
+    Args:
+        param1 (list): List of the desired stations (type MonitoringStation) to graph
+        param2 (int): Number of days.
+    """
+    plots = []
+    for station in stations:
+        dates, levels = fetch_measure_levels(station.measure_id, dt=timedelta(days=dt))
+        p = figure(title=station.name, x_axis_label="Time", y_axis_label="Water level (m)")
+        p.line(dates, levels, line_width=2)
+        p.xaxis.formatter = DatetimeTickFormatter(
+            hours=["%d %B %Y"],
+            days=["%d %B %Y"],
+            months=["%d %B %Y"],
+            years=["%d %B %Y"],
+        )
+        p.xaxis.major_label_orientation = np.pi / 4
+        plots.append(p)
+
+    output_file("grid.html")
+    grid = gridplot(plots, ncols=3, plot_width=300, plot_height=250)
+    show(grid)

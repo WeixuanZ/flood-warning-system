@@ -35,3 +35,14 @@ def test_build_station_list():
         station_cam.measure_id, dt=datetime.timedelta(days=dt))
     assert len(dates10) == len(levels10)
     assert len(dates10) > len(levels2)
+def test_(self):
+        station1 = MonitoringStation(station_id='test_station_id_1',
+                                     measure_id='test_measure_id_1',
+                                     label='Test Station 1',
+                                     coord=(0., 1.),
+                                     typical_range=(0., 1.),
+                                     river='test_river_1',
+                                     town='test_town_1')
+        location_map = Map([station1])
+        location_map.build()
+        assert path.isfile('./map.html')

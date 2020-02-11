@@ -20,11 +20,17 @@ def stations_level_over_threshold(stations, tol):
     """
     available_data = [(station, station.relative_water_level()) for station in stations if
                       station.relative_water_level() is not None]
-    print(available_data[3])
     return sorted_by_key([i for i in available_data if i[1] > tol], 1, reverse=True)
 
 def stations_highest_rel_level(stations, N):
-    
+    """
+    Function that returns the N number of most at risk stations.
+    Args:
+        param1 (list): List of stations (type MonitoringStation).
+        param2 (int): Length of the desired list
+    Returns:
+        list: List of stations(type MonitoringStation)
+    """
     
     available_data = [(station, station.relative_water_level()) for station in stations if
                       station.relative_water_level() is not None]

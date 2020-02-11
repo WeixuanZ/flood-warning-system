@@ -187,4 +187,4 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
     # return on last <display> data points, the demo values, and future predictions
     date = (date[-display:], [date[-1] + datetime.timedelta(minutes=15) * i for i in range(iteration)])
     return date, (levels[-display:], scalar.inverse_transform(
-        demo), scalar.inverse_transform(predictions))
+        demo).ravel(), scalar.inverse_transform(predictions).ravel())

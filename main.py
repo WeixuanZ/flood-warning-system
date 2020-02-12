@@ -25,7 +25,7 @@ location_map.plot_height = 500
 location_map.sizing_mode = 'scale_width'
 
 # High risk stations
-highrisk_title = Div(text="""<h3>High Risk Stations</h3><p>The six stations with the highest relative water levels are shown below.</p> """, width=600, height=50)
+highrisk_title = Div(text="""<h3>High Risk Stations</h3><p>The six stations with the highest relative water levels are shown below.</p> """)
 highrisk_plots = plot_water_levels_multiple(highrisk_stations, dt=10, width=250, height=250)
 highrisk_plots.sizing_mode = 'scale_width'
 

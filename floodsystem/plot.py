@@ -56,7 +56,7 @@ def plot_water_levels(station, dates, levels):
         Bokeh plot object.
     """
     output_file(station.name + ".html")
-    p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
+    p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)", active_scroll="wheel_zoom")
     p.line(dates, levels, line_width=2)
     p.xaxis.formatter = DatetimeTickFormatter(
         hours=["%d %B %Y"],
@@ -68,7 +68,7 @@ def plot_water_levels(station, dates, levels):
     return p
 
 
-def plot_water_levels_multiple(stations, dt):
+def plot_water_levels_multiple(stations, dt, ncol=3, height=250, width=300):
     """
     Function that displays a grid of graphs of the water level over time for a given list of stations.
     Args:
@@ -102,7 +102,7 @@ def plot_water_levels_multiple(stations, dt):
         plots.append(p)
 
     output_file("grid.html")
-    grid = gridplot(plots, ncols=3, plot_width=300, plot_height=250)
+    grid = gridplot(plots, ncols=ncol, plot_width=width, plot_height=height)
     return grid
 
 
@@ -130,5 +130,6 @@ def plot_prediction(date, data):
         years=["%d %B %Y"],
     )
     p.xaxis.major_label_orientation = np.pi / 4
+    p.legend.location = "bottom_left"
 
     return p

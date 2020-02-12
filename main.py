@@ -18,6 +18,18 @@ update_water_levels(stations)
 highrisk_stations = stations_highest_rel_level(stations, 6)
 
 
+source = ColumnDataSource(data=dict(dates=[], levels=[]))
+
+def make_dataset(station_name):
+    try:
+        selected_station = next(s for s in stations if s.name == station_name)
+        dates, levels = fetch_measure_levels(selected_station.measure_id, dt=timedelta(days=30))
+        return ColumnDataSource(data=dict(dates=dates, levels=levels))
+    except StopIteration:
+        print("Station {} could not be found".format(select_input.value))
+
+
+
 # Map
 location_map = Map(stations).build()
 location_map.plot_width = 700
@@ -33,13 +45,7 @@ select_input = TextInput(value="Cam", title="Name of station to search for:")
 select_text = Div(text="<p>Select a station either by clicking on the map, or using the search field below, to display its historical level.</p>")
 
 # Selected station plot
-selected_station = stations[0]
-try:
-    selected_station = next(s for s in stations if s.name == select_input.value)
-except StopIteration:
-    print("Station {} could not be found".format(select_input.value))
-dates, levels = fetch_measure_levels(selected_station.measure_id, dt=timedelta(days=30))
-selected_plot = plot_water_levels(selected_station, dates, levels)
+selected_plot = plot_water_levels_dynamic(source)
 selected_plot.plot_height = 350
 selected_plot.plot_width = 600
 selected_plot.sizing_mode = 'scale_width'
@@ -61,16 +67,18 @@ predict_plot.sizing_mode = 'scale_width'
 
 
 
-# def update():
-#     selection = predict_select.value
-#     Source.data, Source.data = predict(selection, dataset_size=1000, lookback=2000, iteration=100, display=300,
-#                          use_pretrained=True, batch_size=256, epoch=20)
-#
-#
-# controls = [select_input, predict_select]
+def update():
+    selected_station_name = select_input.value
+    print(selected_station_name)
+    # Source.data, Source.data = predict(selected_station_name, dataset_size=1000, lookback=2000, iteration=100, display=300,
+    #     #                      use_pretrained=True, batch_size=256, epoch=20)
+    new_data = make_dataset(selected_station_name)
+    source.data.update(new_data.data)
+
+# controls = [select_input]
 # for control in controls:
 #     control.on_change('value', lambda attr, old, new: update())
-
+select_input.on_change('value', lambda attr, old, new: update())
 
 
 map_column = column(location_map, width=700, height=500)
@@ -90,7 +98,7 @@ l = layout([
 ])
 
 
-# update()
+update()
 
 curdoc().add_root(l)
 curdoc().title = "Flood Warning System"

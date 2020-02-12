@@ -14,6 +14,17 @@ from bokeh.plotting import figure, gmap
 from .datafetcher import fetch_measure_levels
 
 
+def map_palette(station):
+    if station.typical_range_consistent() is False or station.latest_level is None:
+        return 'gray'
+    elif station.latest_level > station.typical_range[1]:
+        return 'red'
+    elif station.latest_level < station.typical_range[0]:
+        return 'green'
+    else:
+        return 'blue'
+
+
 class Map:
     """This class represents a map of stations."""
 
@@ -33,8 +44,10 @@ class Map:
                                             town=[i.town for i in self.stations],
                                             typical_low=[i.typical_range[0] if i.typical_range is not None else 'nan' for i in self.stations],
                                             typical_high=[i.typical_range[1] if i.typical_range is not None else 'nan' for i in self.stations],
-                                            latest_level=[i.latest_level for i in self.stations]))
-        self.plot.circle(x="lng", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
+                                            latest_level=[i.latest_level if i.latest_level is not None else 'nan' for i in self.stations],
+                                            relative_level=[i.relative_water_level() if i.relative_water_level() is not None else 'nan' for i in self.stations],
+                                            color=[map_palette(i) for i in self.stations]))
+        self.plot.circle(x="lng", y="lat", size=15, fill_color='color', fill_alpha=0.8, source=source)
         hover_tool = HoverTool(tooltips=[
             ("Station Name", "@name"),
             ("River Name", "@river"),

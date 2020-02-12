@@ -147,7 +147,7 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
         [batch_size (int)]: (default: 256).
         [epoch (int)]: (default: 20).
     Returns:
-        2-tuple (list, list): List of datetime objects of actual and demo data, list of datatime objects of furture predicted data
+        2-tuple (list, list): List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
         3-tuple (list, list, list): Lists of water levels of actual data, demo data, predicted data.
     """
     date, levels = fetch_levels(station_name, dataset_size, return_date=True)

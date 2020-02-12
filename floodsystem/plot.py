@@ -49,9 +49,11 @@ def plot_water_levels(station, dates, levels):
     """
     Function that makes a graph of the water level over time for a given station.
     Args: 
-        param1 (MonitoringStation): The desired station to graph
-        param2 (list): The list of dates for the x-axis
-        param3 (list): The corresponding water level for each date, y-axis
+        param1 (MonitoringStation): The desired station to graph.
+        param2 (list): The list of dates for the x-axis.
+        param3 (list): The corresponding water level for each date, y-axis.
+    Returns:
+        Bokeh plot object.
     """
     output_file(station.name + ".html")
     p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
@@ -72,6 +74,8 @@ def plot_water_levels_multiple(stations, dt):
     Args:
         param1 (list): List of the desired stations (type MonitoringStation) to graph
         param2 (int): Number of days.
+    Returns:
+        Bokeh plot object.
     """
     plots = []
     for station in stations:
@@ -100,3 +104,31 @@ def plot_water_levels_multiple(stations, dt):
     output_file("grid.html")
     grid = gridplot(plots, ncols=3, plot_width=300, plot_height=250)
     return grid
+
+
+def plot_prediction(date, data):
+    """
+    Function that plots the prediction made by predictor.
+    Args:
+        param1 (2-tuple): List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
+        param2 (3-tuple): Lists of water levels of actual data, demo data, predicted data.
+    Returns:
+        Bokeh plot object.
+    """
+    output_file("prediction.html")
+    p = figure(plot_width=600, plot_height=600,
+               title='Prediction',
+               x_axis_label='Date', y_axis_label='Water level (m)')
+
+    p.line(date[0], data[0], legend_label='Raw', line_width=2)
+    p.line(date[0], data[1], line_color="orange", line_width=2, legend_label='Demo')
+    p.line(date[1], data[2], line_color="green", line_width=2, legend_label='Prediction')
+    p.xaxis.formatter = DatetimeTickFormatter(
+        hours=["%d %B %Y"],
+        days=["%d %B %Y"],
+        months=["%d %B %Y"],
+        years=["%d %B %Y"],
+    )
+    p.xaxis.major_label_orientation = np.pi / 4
+
+    return p

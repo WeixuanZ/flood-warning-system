@@ -30,13 +30,18 @@ class Map:
         source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lng=[i[1] for i in self.locations],
                                             name=[i.name for i in self.stations],
                                             river=[i.river for i in self.stations],
-                                            town=[i.town for i in self.stations]))
+                                            town=[i.town for i in self.stations],
+                                            typical_low=[i.typical_range[0] if i.typical_range is not None else 'nan' for i in self.stations],
+                                            typical_high=[i.typical_range[1] if i.typical_range is not None else 'nan' for i in self.stations],
+                                            latest_level=[i.latest_level for i in self.stations]))
         self.plot.circle(x="lng", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
         hover_tool = HoverTool(tooltips=[
             ("Station Name", "@name"),
             ("River Name", "@river"),
             ("Town", "@town"),
-            ("(Latitude,Longitude)", "(@lat, @lng)")
+            ("Latitude,Longitude", "(@lat, @lng)"),
+            ("Typical Range (m)", "@typical_low - @typical_high"),
+            ("Latest Level (m)", "@latest_level")
         ])
         self.plot.add_tools(hover_tool)
         return self.plot

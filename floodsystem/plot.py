@@ -86,6 +86,27 @@ def plot_water_levels(station, dates, levels):
     return p
 
 
+def plot_water_levels_dynamic(source):
+    """
+    Function that makes a graph of the water level over time for a given station.
+    Args:
+        param1 (list): The list of dates for the x-axis.
+        param2 (list): The corresponding water level for each date, y-axis.
+    Returns:
+        Bokeh plot object.
+    """
+    p = figure(x_axis_label="Date", y_axis_label="Water level (m)", active_scroll="wheel_zoom")
+    p.line(x='dates', y='levels', source=source, line_width=2)
+    p.xaxis.formatter = DatetimeTickFormatter(
+        hours=["%d %B %Y"],
+        days=["%d %B %Y"],
+        months=["%d %B %Y"],
+        years=["%d %B %Y"],
+    )
+    p.xaxis.major_label_orientation = np.pi / 4
+    return p
+
+
 def plot_water_levels_multiple(stations, dt, ncol=3, height=250, width=300):
     """
     Function that displays a grid of graphs of the water level over time for a given list of stations.

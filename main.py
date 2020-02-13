@@ -90,8 +90,8 @@ update_select()
 
 
 def update_map_select(attr, old, new):
-    if map_select is True:
-        inds = new
+    inds = new
+    if map_select is True and inds != []:
         selected_station_name = map_source.data['name'][inds[0]]
         print(selected_station_name)
         new_data = make_dataset(selected_station_name)
@@ -140,6 +140,7 @@ def update_toggle():
     if radio_button_group.active == 1:
         map_select = False
         location_map.tools.pop()
+        r.data_source.selected.indices = []
         select_column.children = [select_text, radio_button_group, select_input, selected_plot]
     else:
         map_select = True

@@ -2,7 +2,7 @@ import numpy as np
 
 from bokeh.io import output_file, show
 from bokeh.layouts import gridplot, layout, column
-from bokeh.models import ColumnDataSource, Select, Div, TextInput, Tabs, Panel
+from bokeh.models import ColumnDataSource, Select, Div, TextInput, Tabs, Panel, RadioButtonGroup
 from bokeh.plotting import curdoc
 
 from floodsystem.plot import *
@@ -39,6 +39,7 @@ highrisk_plots.sizing_mode = 'scale_width'
 select_input = TextInput(value="Cam", title="Name of station to search for:")
 select_text = Div(text="<p>Select a station either by clicking on the map, or using the search field below, to display its historical level.</p>")
 
+
 # data for plot of selected station
 source = ColumnDataSource(data=dict(dates=[], levels=[]))
 
@@ -64,7 +65,7 @@ select_input.on_change('value', lambda attr, old, new: update_select())
 update_select()
 
 selected_plot = plot_water_levels_dynamic(source)
-selected_plot.plot_height = 350
+selected_plot.plot_height = 300
 selected_plot.plot_width = 600
 selected_plot.sizing_mode = 'scale_width'
 
@@ -77,8 +78,8 @@ predict_date = []
 predict_level = []
 predict_plots = []
 for station in highrisk_stations:
-    date, level = predict(station.name, dataset_size=1000, lookback=2000, iteration=100, display=300,
-                         use_pretrained=False, batch_size=256, epoch=20)
+    date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
+                         use_pretrained=True, batch_size=256, epoch=20)
     predict_plot = plot_prediction(date, level)
     predict_plot.plot_width = 400
     predict_plot.plot_height = 400
@@ -92,8 +93,20 @@ predict_tabs = Tabs(tabs=predict_plots)
 # Layout
 map_column = column(location_map, width=700, height=500)
 
-select_column = column(select_text, select_input, selected_plot, width=600, height=500)
+radio_button_group = RadioButtonGroup(labels=["Click on Map", "Search"], active=0)
+select_column = column(select_text, radio_button_group, selected_plot, width=600, height=500)
 select_column.sizing_mode = "fixed"
+
+
+def update_toggle():
+    if radio_button_group.active == 1:
+        select_column.children = [select_text, radio_button_group, select_input, selected_plot]
+    else:
+        select_column.children = [select_text, radio_button_group, selected_plot]
+
+
+radio_button_group.on_change('active', lambda attr, old, new: update_toggle())
+
 
 highrisk_column = column(highrisk_title, highrisk_plots, width=800, height=600)
 highrisk_column.sizing_mode = "fixed"

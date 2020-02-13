@@ -13,12 +13,35 @@ from floodsystem.predictor import predict
 
 
 # Fetching data
+
 stations = build_station_list()
 update_water_levels(stations)
 highrisk_stations = stations_highest_rel_level(stations, 6)
 
 
+# Map
+
+location_map = Map(stations).build()
+location_map.plot_width = 700
+location_map.plot_height = 500
+location_map.sizing_mode = 'scale_width'
+
+
+# High risk stations
+
+highrisk_title = Div(text="""<h3>High Risk Stations</h3><p>The six stations with the highest relative water levels are shown below.</p> """)
+highrisk_plots = plot_water_levels_multiple(highrisk_stations, dt=10, width=250, height=250)
+highrisk_plots.sizing_mode = 'scale_width'
+
+
+# Selected station plot
+
+select_input = TextInput(value="Cam", title="Name of station to search for:")
+select_text = Div(text="<p>Select a station either by clicking on the map, or using the search field below, to display its historical level.</p>")
+
+# data for plot of selected station
 source = ColumnDataSource(data=dict(dates=[], levels=[]))
+
 
 def make_dataset(station_name):
     try:
@@ -27,28 +50,26 @@ def make_dataset(station_name):
         return ColumnDataSource(data=dict(dates=dates, levels=levels))
     except StopIteration:
         print("Station {} could not be found".format(select_input.value))
+        return ColumnDataSource(data=dict(dates=[], levels=[]))
 
 
+def update_select():
+    selected_station_name = select_input.value
+    print(selected_station_name)
+    new_data = make_dataset(selected_station_name)
+    source.data.update(new_data.data)
 
-# Map
-location_map = Map(stations).build()
-location_map.plot_width = 700
-location_map.plot_height = 500
-location_map.sizing_mode = 'scale_width'
 
-# High risk stations
-highrisk_title = Div(text="""<h3>High Risk Stations</h3><p>The six stations with the highest relative water levels are shown below.</p> """)
-highrisk_plots = plot_water_levels_multiple(highrisk_stations, dt=10, width=250, height=250)
-highrisk_plots.sizing_mode = 'scale_width'
+select_input.on_change('value', lambda attr, old, new: update_select())
+update_select()
 
-select_input = TextInput(value="Cam", title="Name of station to search for:")
-select_text = Div(text="<p>Select a station either by clicking on the map, or using the search field below, to display its historical level.</p>")
-
-# Selected station plot
 selected_plot = plot_water_levels_dynamic(source)
 selected_plot.plot_height = 350
 selected_plot.plot_width = 600
 selected_plot.sizing_mode = 'scale_width'
+
+
+# Prediction
 
 predict_text = Div(text="""<p>Choose one of the high risk stations for prediction using a recurrent neural network.</p>""")
 predict_select = Select(title="Station to predict:", value=highrisk_stations[0].name, options=[i.name for i in highrisk_stations])
@@ -59,28 +80,13 @@ class Source:
                          use_pretrained=True, batch_size=256, epoch=20)
 
 
-# Prediction
 predict_plot = plot_prediction(Source.date, Source.data)
 predict_plot.plot_width = 400
 predict_plot.plot_height = 400
 predict_plot.sizing_mode = 'scale_width'
 
 
-
-def update():
-    selected_station_name = select_input.value
-    print(selected_station_name)
-    # Source.data, Source.data = predict(selected_station_name, dataset_size=1000, lookback=2000, iteration=100, display=300,
-    #     #                      use_pretrained=True, batch_size=256, epoch=20)
-    new_data = make_dataset(selected_station_name)
-    source.data.update(new_data.data)
-
-# controls = [select_input]
-# for control in controls:
-#     control.on_change('value', lambda attr, old, new: update())
-select_input.on_change('value', lambda attr, old, new: update())
-
-
+# Layout
 map_column = column(location_map, width=700, height=500)
 
 select_column = column(select_text, select_input, selected_plot, width=600, height=500)
@@ -97,8 +103,6 @@ l = layout([
     [highrisk_column, predict_column]
 ])
 
-
-update()
 
 curdoc().add_root(l)
 curdoc().title = "Flood Warning System"

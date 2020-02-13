@@ -90,8 +90,7 @@ def plot_water_levels_dynamic(source):
     """
     Function that makes a graph of the water level over time for a given station.
     Args:
-        param1 (list): The list of dates for the x-axis.
-        param2 (list): The corresponding water level for each date, y-axis.
+        param1 (type ColumnDataSource): The dataset.
     Returns:
         Bokeh plot object.
     """

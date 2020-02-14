@@ -1,6 +1,8 @@
-import numpy as np
+# Copyright (C) 2020 Weixuan Zhang
+#
+# SPDX-License-Identifier: MIT
 
-from bokeh.layouts import gridplot, layout, column
+from bokeh.layouts import layout, column
 from bokeh.models import ColumnDataSource, Select, Div, TextInput, Tabs, Panel, RadioButtonGroup, GMapOptions, HoverTool, TapTool
 from bokeh.plotting import curdoc, gmap
 
@@ -52,13 +54,6 @@ location_map.plot_height = 500
 location_map.sizing_mode = 'scale_width'
 
 
-# High risk stations
-
-highrisk_title = Div(text="""<h3>High Risk Stations</h3><p>The six stations with the highest relative water levels are shown below.</p> """)
-highrisk_plots = plot_water_levels_multiple(highrisk_stations, dt=10, width=250, height=250)
-highrisk_plots.sizing_mode = 'scale_width'
-
-
 # Selected station plot
 
 select_input = TextInput(value="Cam", title="Name of station to search for:")
@@ -81,12 +76,17 @@ def make_dataset(station_name):
 def update_select():
     selected_station_name = select_input.value
     print(selected_station_name)
+    if selected_station_name != '':
+        r.data_source.selected.indices = [list(map_source.data['name']).index(selected_station_name)]
+    else:
+        r.data_source.selected.indices = []
     new_data = make_dataset(selected_station_name)
     source.data.update(new_data.data)
 
 
 select_input.on_change('value', lambda attr, old, new: update_select())
 update_select()
+r.data_source.selected.indices = []
 
 
 def update_map_select(attr, old, new):
@@ -105,6 +105,13 @@ selected_plot = plot_water_levels_dynamic(source)
 selected_plot.plot_height = 320
 selected_plot.plot_width = 600
 selected_plot.sizing_mode = 'scale_width'
+
+
+# High risk stations
+
+highrisk_title = Div(text="""<h3>High Risk Stations</h3><p>The six stations with the highest relative water levels are shown below.</p> """)
+highrisk_plots = plot_water_levels_multiple(highrisk_stations, dt=10, width=250, height=250)
+highrisk_plots.sizing_mode = 'scale_width'
 
 
 # Prediction
@@ -126,7 +133,6 @@ for station in highrisk_stations:
 predict_tabs = Tabs(tabs=predict_plots)
 
 
-
 # Layout
 map_column = column(location_map, width=700, height=500)
 
@@ -145,6 +151,7 @@ def update_toggle():
     else:
         map_select = True
         location_map.add_tools(tap_tool)
+        r.data_source.selected.indices = []
         select_column.children = [select_text, radio_button_group, selected_plot]
 
 

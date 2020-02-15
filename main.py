@@ -18,7 +18,7 @@ from floodsystem.stationdata import build_station_list, update_water_levels
 
 # map_select = True
 
-## Fetching data
+## Fetching and preparing data
 
 stations = build_station_list()
 update_water_levels(stations)
@@ -39,6 +39,9 @@ source = ColumnDataSource(data=dict(lat=[i.coord[0] for i in stations],
                                         i.relative_water_level() if i.relative_water_level() is not None else 'nan' for
                                         i in stations],
                                     color=[map_palette(i) for i in stations]))
+name_to_indx = dict()  # building a hash table for quick search up of indices
+for indx, i in enumerate(source.data['name']):
+    name_to_indx[i] = indx
 
 ## Map
 
@@ -90,7 +93,7 @@ def update_text_select(attr, old, new):
             0]:  # after fuzzy match, the new station is equal to the current station
             return
         print('Input: ' + input_text + ', Matched: ' + selected_station_name)
-        indx = list(source.data['name']).index(selected_station_name)
+        indx = name_to_indx[selected_station_name]
         current_selection = [selected_station_name, indx]  # update the current selection cache
         r.data_source.selected.indices = [indx]  # update the selection on map
         select_input.value = selected_station_name  # update the displayed text in the text input box

@@ -91,6 +91,7 @@ def update_text_select(attr, old, new):
         selected_station_name = process.extractOne(input_text, source.data['name'])[0]
         if selected_station_name == current_selection[
             0]:  # after fuzzy match, the new station is equal to the current station
+            select_input.value = selected_station_name
             return
         print('Input: ' + input_text + ', Matched: ' + selected_station_name)
         indx = name_to_indx[selected_station_name]

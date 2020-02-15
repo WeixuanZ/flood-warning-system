@@ -187,15 +187,18 @@ select_column.sizing_mode = "fixed"
 # radio_button_group.on_change('active', lambda attr, old, new: update_toggle())
 
 
-highrisk_column = column(highrisk_title, highrisk_plots, width=800, height=600)
+highrisk_column = column(highrisk_title, highrisk_plots, width=800, height=700)
 highrisk_column.sizing_mode = "fixed"
 
-predict_column = column(predict_text, predict_tabs, width=500, height=600)
+predict_column = column(predict_text, predict_tabs, width=500, height=700)
 predict_column.sizing_mode = "fixed"
+
+notice = Div(text="""<footer>&copy; Copyright 2020 Weixuan Zhang, Ghifari Pradana. CUED Part 1A Lent computing project.</footer>""", width=600)
 
 l = layout([
     [location_map, select_column],
-    [highrisk_column, predict_column]
+    [highrisk_column, predict_column],
+    [notice]
 ])
 
 curdoc().add_root(l)

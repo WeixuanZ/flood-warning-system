@@ -13,6 +13,7 @@ from bokeh.plotting import figure, gmap
 from .analysis import polyfit
 from .datafetcher import fetch_measure_levels
 from matplotlib.dates import date2num
+import os.path
 
 
 class Map:

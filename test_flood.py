@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Weixuan Zhang
+# Copyright (C) 2020 Weixuan Zhang & Ghifari Pradana
 #
 # SPDX-License-Identifier: MIT
 """Unit test for the flood module"""

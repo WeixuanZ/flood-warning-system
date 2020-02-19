@@ -9,12 +9,14 @@ from bokeh.layouts import layout, column
 from bokeh.models import ColumnDataSource, Div, TextInput, Tabs, Panel, TapTool, HoverTool, GMapOptions
 from bokeh.plotting import curdoc, gmap
 from fuzzywuzzy import process
+from matplotlib.dates import date2num
 
 from floodsystem.datafetcher import fetch_measure_levels
 from floodsystem.flood import stations_highest_rel_level
 from floodsystem.plot import map_palette, plot_water_levels_dynamic, plot_water_levels_multiple, plot_prediction
 from floodsystem.predictor import predict
 from floodsystem.stationdata import build_station_list, update_water_levels
+from floodsystem.analysis import polyfit
 
 # map_select = True
 
@@ -147,7 +149,7 @@ highrisk_plots.sizing_mode = 'scale_width'
 ## Prediction
 
 predict_text = Div(
-    text="""<p>Choose one of the high risk stations to see the prediction by a recurrent neural network.</p>""")
+    text="""<p>Choose one of the high risk stations to see the prediction by a recurrent neural network and least-squares polynomial fit.</p>""")
 
 predict_date = []
 predict_level = []
@@ -159,6 +161,8 @@ for station in highrisk_stations:
     except:
         date, level = [], []
     predict_plot = plot_prediction(date, level)
+    poly, d0 = polyfit(date[0], level[0], 4)
+    predict_plot.line(date[0]+date[1], [poly(date - d0) for date in date2num(date[0]+date[1])], line_width=2, line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
     predict_plot.plot_width = 400
     predict_plot.plot_height = 400
     predict_plot.sizing_mode = 'scale_width'
@@ -167,6 +171,7 @@ for station in highrisk_stations:
 predict_tabs = Tabs(tabs=predict_plots)
 
 ## Layout
+
 map_column = column(location_map, width=700, height=500)
 
 # radio_button_group = RadioButtonGroup(labels=["Click on Map", "Search"], active=0)

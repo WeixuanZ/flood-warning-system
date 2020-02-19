@@ -138,18 +138,17 @@ def plot_prediction(date, data):
 
     return p
 
-
 def plot_water_level_with_fit(station, dates, levels, p):
     """
-        Function that plots the prediction made by fitting a polynomial.
-        Args:
-            param1 (type MonitoringStation): The station.
-            param2 (list): The list of dates for the x-axis.
-            param3 (list): The corresponding water level for each date, y-axis.
-            p (int): Degree of the polynomial.
-        Returns:
-            Bokeh plot object.
-        """
+    Function that makes a graph of the water level over time for a given station with a least-square fit polynomial with a degree of p.
+    Args: 
+        param1 (MonitoringStation): The desired station to graph.
+        param2 (list): The list of dates for the x-axis.
+        param3 (list): The corresponding water level for each date, y-axis.
+        param4 (int): The degree of polynomial that is desired.
+    Returns:
+        Bokeh plot object.
+    """
     output_file(station.name + ".html")
     graph = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
     graph.line(dates, levels, line_width=2)

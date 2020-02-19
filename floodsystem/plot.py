@@ -153,7 +153,7 @@ def plot_water_level_with_fit(station, dates, levels, p):
     graph = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
     graph.line(dates, levels, line_width=2)
     poly, d0 = polyfit(dates, levels, p)
-    graph.line(dates, [poly(date - d0) for date in date2num(dates)], line_width=2)
+    graph.line(dates, [poly(date - d0) for date in date2num(dates)], line_width=2, line_color='orange')
     low = Span(location=station.typical_range[0], dimension='width', line_color='gray', line_dash="4 4", line_width=2)
     graph.add_layout(low)
     high = Span(location=station.typical_range[1], dimension='width', line_color='gray', line_dash="4 4", line_width=2)

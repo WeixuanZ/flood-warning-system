@@ -6,13 +6,14 @@ from datetime import timedelta
 from os import environ
 
 import numpy as np
-from bokeh.io import output_file, show
+from bokeh.io import output_file
 from bokeh.layouts import gridplot
 from bokeh.models import ColumnDataSource, GMapOptions, HoverTool, DatetimeTickFormatter, Span, BoxAnnotation
 from bokeh.plotting import figure, gmap
+from matplotlib.dates import date2num
+
 from .analysis import polyfit
 from .datafetcher import fetch_measure_levels
-from matplotlib.dates import date2num
 
 
 class Map:
@@ -83,12 +84,15 @@ def plot_water_levels_multiple(stations, dt):
         dates, levels = fetch_measure_levels(station.measure_id, dt=timedelta(days=dt))
         p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
         p.line(dates, levels, line_width=2)
-        low = Span(location=station.typical_range[0], dimension='width', line_color='gray', line_dash="4 4", line_width=2)
+        low = Span(location=station.typical_range[0], dimension='width', line_color='gray', line_dash="4 4",
+                   line_width=2)
         p.add_layout(low)
-        high = Span(location=station.typical_range[1], dimension='width', line_color='gray', line_dash="4 4", line_width=2)
+        high = Span(location=station.typical_range[1], dimension='width', line_color='gray', line_dash="4 4",
+                    line_width=2)
         p.add_layout(high)
         low_box = BoxAnnotation(top=station.typical_range[0], fill_alpha=0.1, fill_color='red')
-        mid_box = BoxAnnotation(bottom=station.typical_range[0], top=station.typical_range[1], fill_alpha=0.1, fill_color='green')
+        mid_box = BoxAnnotation(bottom=station.typical_range[0], top=station.typical_range[1], fill_alpha=0.1,
+                                fill_color='green')
         high_box = BoxAnnotation(bottom=station.typical_range[1], fill_alpha=0.1, fill_color='red')
         p.add_layout(low_box)
         p.add_layout(mid_box)
@@ -134,8 +138,18 @@ def plot_prediction(date, data):
 
     return p
 
-def plot_water_level_with_fit(station, dates, levels, p):
 
+def plot_water_level_with_fit(station, dates, levels, p):
+    """
+        Function that plots the prediction made by fitting a polynomial.
+        Args:
+            param1 (type MonitoringStation): The station.
+            param2 (list): The list of dates for the x-axis.
+            param3 (list): The corresponding water level for each date, y-axis.
+            p (int): Degree of the polynomial.
+        Returns:
+            Bokeh plot object.
+        """
     output_file(station.name + ".html")
     graph = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
     graph.line(dates, levels, line_width=2)
@@ -146,7 +160,8 @@ def plot_water_level_with_fit(station, dates, levels, p):
     high = Span(location=station.typical_range[1], dimension='width', line_color='gray', line_dash="4 4", line_width=2)
     graph.add_layout(high)
     low_box = BoxAnnotation(top=station.typical_range[0], fill_alpha=0.1, fill_color='gray')
-    mid_box = BoxAnnotation(bottom=station.typical_range[0], top=station.typical_range[1], fill_alpha=0.1, fill_color='green')
+    mid_box = BoxAnnotation(bottom=station.typical_range[0], top=station.typical_range[1], fill_alpha=0.1,
+                            fill_color='green')
     high_box = BoxAnnotation(bottom=station.typical_range[1], fill_alpha=0.1, fill_color='red')
     graph.add_layout(low_box)
     graph.add_layout(mid_box)

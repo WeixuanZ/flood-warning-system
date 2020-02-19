@@ -2,16 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-# from datetime import timedelta
-# from floodsystem.datafetcher import fetch_measure_levels
-
 from datetime import timedelta
+
+from bokeh.io import show
+
 from floodsystem.datafetcher import fetch_measure_levels
+from floodsystem.flood import stations_highest_rel_level
 from floodsystem.plot import plot_water_level_with_fit
 from floodsystem.stationdata import build_station_list, update_water_levels
-from floodsystem.flood import stations_highest_rel_level
-from bokeh.io import show
-from floodsystem.analysis import polyfit
+
 
 def run():
     stations = build_station_list()
@@ -20,9 +19,8 @@ def run():
 
     for station in high_risk_stations:
         dates, levels = fetch_measure_levels(station.measure_id, dt=timedelta(days=2))
-        graph = plot_water_level_with_fit(station,dates,levels,4)
+        graph = plot_water_level_with_fit(station, dates, levels, 4)
         show(graph)
-
 
 
 if __name__ == "__main__":

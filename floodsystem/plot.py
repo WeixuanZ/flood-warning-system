@@ -16,6 +16,17 @@ from .analysis import polyfit
 from .datafetcher import fetch_measure_levels
 
 
+def map_palette(station):
+    if station.typical_range_consistent() is False or station.latest_level is None:
+        return 'gray'
+    elif station.latest_level > station.typical_range[1]:
+        return 'red'
+    elif station.latest_level < station.typical_range[0]:
+        return 'green'
+    else:
+        return 'blue'
+
+
 class Map:
     """This class represents a map of stations."""
 
@@ -32,13 +43,20 @@ class Map:
         source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lng=[i[1] for i in self.locations],
                                             name=[i.name for i in self.stations],
                                             river=[i.river for i in self.stations],
-                                            town=[i.town for i in self.stations]))
-        self.plot.circle(x="lng", y="lat", size=15, fill_color="blue", fill_alpha=0.8, source=source)
+                                            town=[i.town for i in self.stations],
+                                            typical_low=[i.typical_range[0] if i.typical_range is not None else 'nan' for i in self.stations],
+                                            typical_high=[i.typical_range[1] if i.typical_range is not None else 'nan' for i in self.stations],
+                                            latest_level=[i.latest_level if i.latest_level is not None else 'nan' for i in self.stations],
+                                            relative_level=[i.relative_water_level() if i.relative_water_level() is not None else 'nan' for i in self.stations],
+                                            color=[map_palette(i) for i in self.stations]))
+        self.plot.circle(x="lng", y="lat", size=15, fill_color='color', fill_alpha=0.8, source=source)
         hover_tool = HoverTool(tooltips=[
             ("Station Name", "@name"),
             ("River Name", "@river"),
             ("Town", "@town"),
-            ("(Latitude,Longitude)", "(@lat, @lng)")
+            ("Latitude,Longitude", "(@lat, @lng)"),
+            ("Typical Range (m)", "@typical_low - @typical_high"),
+            ("Latest Level (m)", "@latest_level")
         ])
         self.plot.add_tools(hover_tool)
         return self.plot
@@ -58,7 +76,7 @@ def plot_water_levels(station, dates, levels):
         Bokeh plot object.
     """
     output_file(station.name + ".html")
-    p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)")
+    p = figure(title=station.name, x_axis_label="Date", y_axis_label="Water level (m)", active_scroll="wheel_zoom")
     p.line(dates, levels, line_width=2)
     p.xaxis.formatter = DatetimeTickFormatter(
         hours=["%d %B %Y"],
@@ -70,7 +88,27 @@ def plot_water_levels(station, dates, levels):
     return p
 
 
-def plot_water_levels_multiple(stations, dt):
+def plot_water_levels_dynamic(source):
+    """
+    Function that makes a graph of the water level over time for a given station.
+    Args:
+        param1 (type ColumnDataSource): The dataset.
+    Returns:
+        Bokeh plot object.
+    """
+    p = figure(x_axis_label="Date", y_axis_label="Water level (m)", active_scroll="wheel_zoom")
+    p.line(x='dates', y='levels', source=source, line_width=2)
+    p.xaxis.formatter = DatetimeTickFormatter(
+        hours=["%d %B %Y"],
+        days=["%d %B %Y"],
+        months=["%d %B %Y"],
+        years=["%d %B %Y"],
+    )
+    p.xaxis.major_label_orientation = np.pi / 4
+    return p
+
+
+def plot_water_levels_multiple(stations, dt, ncol=3, height=250, width=300):
     """
     Function that displays a grid of graphs of the water level over time for a given list of stations.
     Args:
@@ -107,7 +145,7 @@ def plot_water_levels_multiple(stations, dt):
         plots.append(p)
 
     output_file("grid.html")
-    grid = gridplot(plots, ncols=3, plot_width=300, plot_height=250)
+    grid = gridplot(plots, ncols=ncol, plot_width=width, plot_height=height)
     return grid
 
 
@@ -135,6 +173,7 @@ def plot_prediction(date, data):
         years=["%d %B %Y"],
     )
     p.xaxis.major_label_orientation = np.pi / 4
+    p.legend.location = "bottom_left"
 
     return p
 

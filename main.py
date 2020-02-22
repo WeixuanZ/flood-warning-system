@@ -6,17 +6,20 @@ from datetime import timedelta
 from os import environ
 
 from bokeh.layouts import layout, column
-from bokeh.models import ColumnDataSource, Div, TextInput, Tabs, Panel, TapTool, HoverTool, GMapOptions
+from bokeh.models import ColumnDataSource, Div, TextInput, Tabs, Panel, TapTool, HoverTool, GMapOptions, ColorBar
 from bokeh.plotting import curdoc, gmap
+from bokeh.transform import log_cmap
+from bokeh.palettes import Spectral6
 from fuzzywuzzy import process
 from matplotlib.dates import date2num
 
 from floodsystem.datafetcher import fetch_measure_levels
-from floodsystem.flood import stations_highest_rel_level
+from floodsystem.flood import stations_highest_rel_level, stations_level_over_threshold
 from floodsystem.plot import map_palette, plot_water_levels_dynamic, plot_water_levels_multiple, plot_prediction
 from floodsystem.predictor import predict
 from floodsystem.stationdata import build_station_list, update_water_levels
 from floodsystem.analysis import polyfit
+from floodsystem.geo import stations_by_distance, stations_within_radius, stations_by_river
 
 # map_select = True
 
@@ -25,7 +28,10 @@ from floodsystem.analysis import polyfit
 stations = build_station_list()
 update_water_levels(stations)
 highrisk_stations = stations_highest_rel_level(stations, 6)
-source = ColumnDataSource(data=dict(lat=[i.coord[0] for i in stations],
+
+
+def convert_to_datasource(stations):
+    return ColumnDataSource(data=dict(lat=[i.coord[0] for i in stations],
                                     lng=[i.coord[1] for i in stations],
                                     name=[i.name for i in stations],
                                     measure_id=[i.measure_id for i in stations],
@@ -41,6 +47,9 @@ source = ColumnDataSource(data=dict(lat=[i.coord[0] for i in stations],
                                         i.relative_water_level() if i.relative_water_level() is not None else 'nan' for
                                         i in stations],
                                     color=[map_palette(i) for i in stations]))
+
+
+source = convert_to_datasource(stations)
 name_to_indx = dict()  # building a hash table for quick search up of indices
 for indx, i in enumerate(source.data['name']):
     name_to_indx[i] = indx
@@ -154,21 +163,61 @@ predict_text = Div(
 predict_date = []
 predict_level = []
 predict_plots = []
-for station in highrisk_stations:
-    try:
-        date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
-                              use_pretrained=True, batch_size=256, epoch=20)
-    except:
-        date, level = [], []
-    predict_plot = plot_prediction(date, level)
-    poly, d0 = polyfit(date[0], level[0], 4)
-    predict_plot.line(date[0]+date[1], [poly(date - d0) for date in date2num(date[0]+date[1])], line_width=2, line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
-    predict_plot.plot_width = 400
-    predict_plot.plot_height = 400
-    predict_plot.sizing_mode = 'scale_width'
-    predict_plots.append(Panel(child=predict_plot, title=station.name))
+# for station in highrisk_stations:
+#     try:
+#         date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
+#                               use_pretrained=True, batch_size=256, epoch=20)
+#     except:
+#         date, level = [], []
+#     predict_plot = plot_prediction(date, level)
+#     poly, d0 = polyfit(date[0], level[0], 4)
+#     predict_plot.line(date[0]+date[1], [poly(date - d0) for date in date2num(date[0]+date[1])], line_width=2, line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
+#     predict_plot.plot_width = 400
+#     predict_plot.plot_height = 400
+#     predict_plot.sizing_mode = 'scale_width'
+#     predict_plots.append(Panel(child=predict_plot, title=station.name))
 
 predict_tabs = Tabs(tabs=predict_plots)
+
+
+## Warning
+warning_text = Div(text="""<h3>Flooding Warnings</h3><p>.</p> """)
+
+risky_stations_with_level = stations_level_over_threshold(stations, 1.2)
+risky_stations = [i[0] for i in risky_stations_with_level]
+risky_source = convert_to_datasource(risky_stations)
+
+mapper = log_cmap(field_name='relative_level', palette=Spectral6, low=1.0, high=risky_stations[0].relative_water_level())
+
+origin2 = (52.561928, -1.464854)
+options2 = GMapOptions(lat=origin2[0], lng=origin2[1], map_type="roadmap", zoom=5)
+location_map2 = gmap(environ.get('API_KEY'), options2, title="Stations above typical range", tools=tools, active_scroll="wheel_zoom")
+r = location_map2.circle(x="lng", y="lat", size=15, color=mapper, fill_alpha=0.5, source=risky_source)
+hover_tool = HoverTool(tooltips=[
+    ("Station Name", "@name"),
+    ("River Name", "@river"),
+    ("Town", "@town"),
+    ("Latitude,Longitude", "(@lat, @lng)"),
+    ("Typical Range (m)", "@typical_low - @typical_high"),
+    ("Latest Level (m)", "@latest_level")
+])
+tap_tool = TapTool()
+location_map2.add_tools(hover_tool, tap_tool)
+color_bar = ColorBar(color_mapper=mapper['transform'], width=8,  location=(0,0))
+location_map2.add_layout(color_bar, 'right')
+location_map2.plot_width = 700
+location_map2.plot_height = 500
+location_map2.sizing_mode = 'scale_width'
+
+
+
+
+
+
+
+
+
+
 
 ## Layout
 
@@ -202,11 +251,15 @@ highrisk_column.sizing_mode = "fixed"
 predict_column = column(predict_text, predict_tabs, width=500, height=700)
 predict_column.sizing_mode = "fixed"
 
+warning_column = column(warning_text, location_map2, width=500, height=500)
+predict_column.sizing_mode = "fixed"
+
 notice = Div(text="""<footer>&copy; Copyright 2020 Weixuan Zhang, Ghifari Pradana. CUED Part 1A Lent computing project.</footer>""", width=600)
 
 l = layout([
     [location_map, select_column],
     [highrisk_column, predict_column],
+    [warning_column],
     [notice]
 ])
 

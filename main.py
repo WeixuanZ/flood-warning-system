@@ -21,7 +21,7 @@ from floodsystem.plot import map_palette, plot_water_levels_dynamic, plot_water_
 from floodsystem.predictor import predict
 from floodsystem.stationdata import build_station_list, update_water_levels
 from floodsystem.analysis import polyfit
-from floodsystem.geo import stations_by_distance, stations_within_radius, stations_by_river, rivers_by_station_number, rivers_with_station
+from floodsystem.geo import rivers_by_station_number, rivers_with_station
 
 # map_select = True
 
@@ -165,19 +165,19 @@ predict_text = Div(
 predict_date = []
 predict_level = []
 predict_plots = []
-# for station in highrisk_stations:
-#     try:
-#         date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
-#                               use_pretrained=True, batch_size=256, epoch=20)
-#     except:
-#         date, level = [], []
-#     predict_plot = plot_prediction(date, level)
-#     poly, d0 = polyfit(date[0], level[0], 4)
-#     predict_plot.line(date[0]+date[1], [poly(date - d0) for date in date2num(date[0]+date[1])], line_width=2, line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
-#     predict_plot.plot_width = 400
-#     predict_plot.plot_height = 400
-#     predict_plot.sizing_mode = 'scale_width'
-#     predict_plots.append(Panel(child=predict_plot, title=station.name))
+for station in highrisk_stations:
+    try:
+        date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
+                              use_pretrained=True, batch_size=256, epoch=20)
+    except:
+        date, level = [], []
+    predict_plot = plot_prediction(date, level)
+    poly, d0 = polyfit(date[0], level[0], 4)
+    predict_plot.line(date[0]+date[1], [poly(date - d0) for date in date2num(date[0]+date[1])], line_width=2, line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
+    predict_plot.plot_width = 400
+    predict_plot.plot_height = 400
+    predict_plot.sizing_mode = 'scale_width'
+    predict_plots.append(Panel(child=predict_plot, title=station.name))
 
 predict_tabs = Tabs(tabs=predict_plots)
 
@@ -211,17 +211,25 @@ location_map2.plot_height = 500
 location_map2.sizing_mode = 'scale_width'
 
 
+# Clustering
+
+coord_to_station = dict()  # to find the station after knowing which cluster its coordinate belongs to
+for i in risky_stations:
+    coord_to_station[i.coord] = i
+
 X = np.array([i.coord for i in risky_stations])
 db = DBSCAN(eps=0.1, min_samples=5, metric='haversine', n_jobs=-1).fit(X)
 
 labels = db.labels_
-num_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+unique_labels = set(labels)
+num_clusters = len(unique_labels) - (1 if -1 in labels else 0)
 print('Number of clusters:'+str(num_clusters))
 
-unique_labels = set(labels)
 cluster_pallet = linear_palette(Turbo256, len(unique_labels))
-
-averages = dict()  # stores the average relative water levels of stations within each cluster
+label_to_stations = dict()  # to find the list of stations knowing the cluster label
+for i in unique_labels:
+    if i != -1:
+        label_to_stations[i] = []
 
 location_map3 = gmap(environ.get('API_KEY'), options2, title="Clusters", tools=tools, active_scroll="wheel_zoom")
 
@@ -231,13 +239,14 @@ for i in unique_labels:
         coord = X[class_member_mask]
         for xy in coord:
             location_map3.circle(x=xy[1], y=xy[0], size=15, color=cluster_pallet[i], fill_alpha=0.8)
+            label_to_stations[i].append(coord_to_station[(xy[0], xy[1])])  # find the station from its coordinates and append it to the dictionary
 
 location_map3.plot_width = 700
 location_map3.plot_height = 500
 location_map3.sizing_mode = 'scale_width'
 
-
-warning_text2 = Div(text="""<p>{} rivers with risky stations, the top 5 is tabulated below.</p>""".format(len(rivers_with_station(risky_stations))), width=600)
+# Risky rivers
+warning_text2 = Div(text="""<p><b>{}</b> rivers with risky stations, the top 5 is tabulated below.</p>""".format(len(rivers_with_station(risky_stations))), width=600)
 warning_text2.sizing_mode = 'scale_width'
 
 risky_rivers = rivers_by_station_number(risky_stations, 5)
@@ -249,15 +258,31 @@ risky_river_table_columns = [
 risky_river_table = DataTable(source=risky_rivers_source, columns=risky_river_table_columns, width=500, height=200)
 risky_river_table.sizing_mode = 'scale_width'
 
-
-warning_text3 = Div(text="""<p>{} clusters found, the towns within these clusters have a risk of flooding. The table below lists these towns in the order of decreasing risk.</p>""".format(num_clusters), width=600)
+# Risky towns
 risky_towns = []
-risky_towns_source = ColumnDataSource(data=dict(name=[i[0] for i in risky_rivers], num=[i[1] for i in risky_rivers]))
+key_station_in_cluster = []
+mean_levels = []
+for label, s in label_to_stations.items():
+    cluster_levels = np.array([i.relative_water_level() for i in s])
+    mean_levels.append(cluster_levels.mean())
+    key_station_in_cluster.append(s[np.argmax(cluster_levels)])
+    for i in s:
+        risky_towns.append(i.town)
+
+risky_towns = set(risky_towns)  # to find the total number of risky towns
+# sort the towns by the mean relative water level of the cluster it is in
+key_station_in_cluster = sorted(key_station_in_cluster, key=lambda x: mean_levels[key_station_in_cluster.index(x)], reverse=True)
+mean_levels = sorted(mean_levels, reverse=True)
+
+risky_towns_source = ColumnDataSource(data=dict(key_stations = [i.name for i in key_station_in_cluster], key_towns=[i.town for i in key_station_in_cluster], levels=[round(i.relative_water_level(),2) for i in key_station_in_cluster], mean=[round(i,2) for i in mean_levels]))
+warning_text3 = Div(text="""<p><b>{}</b> clusters found, the towns within these clusters (<b>{}</b> in total) have a risk of flooding. The table below lists the towns with the highest relative water level within each cluster in the order of decreasing risk (by calculating the mean relative water level of each cluster).</p>""".format(num_clusters, len(risky_towns)), width=600)
 risky_town_table_columns = [
-        TableColumn(field="name", title="River Name"),
-        TableColumn(field="num", title="Number of Risky Stations"),
+        TableColumn(field="key_towns", title="Towns with Highest Risk"),
+        TableColumn(field="key_stations", title="Station Name"),
+        TableColumn(field="levels", title="Relative Water Level"),
+        TableColumn(field="mean", title="Mean Cluster Relative Water Level"),
     ]
-risky_town_table = DataTable(source=risky_rivers_source, columns=risky_river_table_columns, width=500, height=200)
+risky_town_table = DataTable(source=risky_towns_source, columns=risky_town_table_columns, width=500, height=200)
 risky_town_table.sizing_mode = 'scale_width'
 
 
@@ -297,9 +322,9 @@ predict_column.sizing_mode = "fixed"
 warning_column = column(warning_text, row(location_map2, location_map3), width=1300, height=550)
 predict_column.sizing_mode = "fixed"
 
-river_column = column(warning_text2, width=650, height=50)
+river_column = column(warning_text2, width=650, height=70)
 predict_column.sizing_mode = "fixed"
-town_column = column(warning_text3, width=650, height=50)
+town_column = column(warning_text3, width=650, height=70)
 predict_column.sizing_mode = "fixed"
 
 notice = Div(text="""<footer>&copy; Copyright 2020 Weixuan Zhang, Ghifari Pradana. CUED Part 1A Lent computing project.</footer>""", width=600)

@@ -7,7 +7,7 @@ from os import environ
 import numpy as np
 
 from bokeh.layouts import layout, column, row
-from bokeh.models import ColumnDataSource, Div, TextInput, Tabs, Panel, TapTool, HoverTool, GMapOptions, ColorBar
+from bokeh.models import ColumnDataSource, Div, TextInput, Tabs, Panel, TapTool, HoverTool, GMapOptions, ColorBar, DataTable, TableColumn
 from bokeh.plotting import curdoc, gmap
 from bokeh.transform import log_cmap
 from bokeh.palettes import Spectral10, Turbo256, linear_palette
@@ -21,7 +21,7 @@ from floodsystem.plot import map_palette, plot_water_levels_dynamic, plot_water_
 from floodsystem.predictor import predict
 from floodsystem.stationdata import build_station_list, update_water_levels
 from floodsystem.analysis import polyfit
-from floodsystem.geo import stations_by_distance, stations_within_radius, stations_by_river
+from floodsystem.geo import stations_by_distance, stations_within_radius, stations_by_river, rivers_by_station_number, rivers_with_station
 
 # map_select = True
 
@@ -183,6 +183,7 @@ predict_tabs = Tabs(tabs=predict_plots)
 
 
 ## Warning
+
 warning_text = Div(text="""<h3>Flooding Warnings</h3><p>All the stations with relative water level above 1.2 are shown in the map below. DBSCAN clustering algorithm is used.</p> """)
 
 risky_stations_with_level = stations_level_over_threshold(stations, 1.2)
@@ -214,11 +215,13 @@ X = np.array([i.coord for i in risky_stations])
 db = DBSCAN(eps=0.1, min_samples=5, metric='haversine', n_jobs=-1).fit(X)
 
 labels = db.labels_
-n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-print('Number of clusters:'+str(n_clusters_))
+num_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+print('Number of clusters:'+str(num_clusters))
 
 unique_labels = set(labels)
 cluster_pallet = linear_palette(Turbo256, len(unique_labels))
+
+averages = dict()  # stores the average relative water levels of stations within each cluster
 
 location_map3 = gmap(environ.get('API_KEY'), options2, title="Clusters", tools=tools, active_scroll="wheel_zoom")
 
@@ -234,12 +237,28 @@ location_map3.plot_height = 500
 location_map3.sizing_mode = 'scale_width'
 
 
+warning_text2 = Div(text="""<p>{} rivers with risky stations, the top 5 is tabulated below.</p>""".format(len(rivers_with_station(risky_stations))), width=600)
+warning_text2.sizing_mode = 'scale_width'
+
+risky_rivers = rivers_by_station_number(risky_stations, 5)
+risky_rivers_source = ColumnDataSource(data=dict(name=[i[0] for i in risky_rivers], num=[i[1] for i in risky_rivers]))
+risky_river_table_columns = [
+        TableColumn(field="name", title="River Name"),
+        TableColumn(field="num", title="Number of Risky Stations"),
+    ]
+risky_river_table = DataTable(source=risky_rivers_source, columns=risky_river_table_columns, width=500, height=200)
+risky_river_table.sizing_mode = 'scale_width'
 
 
-
-
-
-
+warning_text3 = Div(text="""<p>{} clusters found, the towns within these clusters have a risk of flooding. The table below lists these towns in the order of decreasing risk.</p>""".format(num_clusters), width=600)
+risky_towns = []
+risky_towns_source = ColumnDataSource(data=dict(name=[i[0] for i in risky_rivers], num=[i[1] for i in risky_rivers]))
+risky_town_table_columns = [
+        TableColumn(field="name", title="River Name"),
+        TableColumn(field="num", title="Number of Risky Stations"),
+    ]
+risky_town_table = DataTable(source=risky_rivers_source, columns=risky_river_table_columns, width=500, height=200)
+risky_town_table.sizing_mode = 'scale_width'
 
 
 
@@ -275,7 +294,12 @@ highrisk_column.sizing_mode = "fixed"
 predict_column = column(predict_text, predict_tabs, width=500, height=650)
 predict_column.sizing_mode = "fixed"
 
-warning_column = column(warning_text, row(location_map2, location_map3), width=1300, height=600)
+warning_column = column(warning_text, row(location_map2, location_map3), width=1300, height=550)
+predict_column.sizing_mode = "fixed"
+
+river_column = column(warning_text2, width=650, height=50)
+predict_column.sizing_mode = "fixed"
+town_column = column(warning_text3, width=650, height=50)
 predict_column.sizing_mode = "fixed"
 
 notice = Div(text="""<footer>&copy; Copyright 2020 Weixuan Zhang, Ghifari Pradana. CUED Part 1A Lent computing project.</footer>""", width=600)
@@ -284,6 +308,8 @@ l = layout([
     [location_map, select_column],
     [highrisk_column, predict_column],
     [warning_column],
+    [river_column, town_column],
+    [row(risky_river_table, risky_town_table, width=1300, height=200)],
     [notice]
 ])
 

@@ -19,7 +19,7 @@ The colour of each point depends on the relationship between the latest water le
 
 Stations can be selected to display its historical water level data through clicking on the map or using the seach box. Fuzzy matching is impelmented for the search box.
 
-![search](/docs/3.png)
+![search](/docs/search.png)
 
 ### Prediction
 

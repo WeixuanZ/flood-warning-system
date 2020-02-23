@@ -100,5 +100,5 @@ def rivers_by_station_number(stations, N):
     """
 
     rivers_and_num = sorted_by_key([(i, len(stations_by_river(stations)[i])) for i in stations_by_river(stations)], 1)
-    min_num = rivers_and_num[-N][1] if N <= len(rivers_and_num) else rivers_and_num[1][1]
+    min_num = rivers_and_num[-N][1] if N <= len(rivers_and_num) else rivers_and_num[0][1]
     return sorted([i for i in rivers_and_num if i[1] >= min_num], key=lambda x: (-x[1], x[0]))

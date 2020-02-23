@@ -4,14 +4,16 @@
 
 from datetime import timedelta
 from os import environ
+import numpy as np
 
-from bokeh.layouts import layout, column
+from bokeh.layouts import layout, column, row
 from bokeh.models import ColumnDataSource, Div, TextInput, Tabs, Panel, TapTool, HoverTool, GMapOptions, ColorBar
 from bokeh.plotting import curdoc, gmap
 from bokeh.transform import log_cmap
-from bokeh.palettes import Spectral6
+from bokeh.palettes import Spectral10, Turbo256, linear_palette
 from fuzzywuzzy import process
 from matplotlib.dates import date2num
+from sklearn.cluster import DBSCAN
 
 from floodsystem.datafetcher import fetch_measure_levels
 from floodsystem.flood import stations_highest_rel_level, stations_level_over_threshold
@@ -181,18 +183,17 @@ predict_tabs = Tabs(tabs=predict_plots)
 
 
 ## Warning
-warning_text = Div(text="""<h3>Flooding Warnings</h3><p>.</p> """)
+warning_text = Div(text="""<h3>Flooding Warnings</h3><p>All the stations with relative water level above 1.2 are shown in the map below. DBSCAN clustering algorithm is used.</p> """)
 
 risky_stations_with_level = stations_level_over_threshold(stations, 1.2)
 risky_stations = [i[0] for i in risky_stations_with_level]
 risky_source = convert_to_datasource(risky_stations)
 
-mapper = log_cmap(field_name='relative_level', palette=Spectral6, low=1.0, high=risky_stations[0].relative_water_level())
-
+mapper = log_cmap(field_name='relative_level', palette=Spectral10, low=1.0, high=risky_stations[0].relative_water_level())
 origin2 = (52.561928, -1.464854)
 options2 = GMapOptions(lat=origin2[0], lng=origin2[1], map_type="roadmap", zoom=5)
 location_map2 = gmap(environ.get('API_KEY'), options2, title="Stations above typical range", tools=tools, active_scroll="wheel_zoom")
-r = location_map2.circle(x="lng", y="lat", size=15, color=mapper, fill_alpha=0.5, source=risky_source)
+r2 = location_map2.circle(x="lng", y="lat", size=15, color=mapper, fill_alpha=0.5, source=risky_source)
 hover_tool = HoverTool(tooltips=[
     ("Station Name", "@name"),
     ("River Name", "@river"),
@@ -201,13 +202,36 @@ hover_tool = HoverTool(tooltips=[
     ("Typical Range (m)", "@typical_low - @typical_high"),
     ("Latest Level (m)", "@latest_level")
 ])
-tap_tool = TapTool()
-location_map2.add_tools(hover_tool, tap_tool)
+location_map2.add_tools(hover_tool)
 color_bar = ColorBar(color_mapper=mapper['transform'], width=8,  location=(0,0))
 location_map2.add_layout(color_bar, 'right')
 location_map2.plot_width = 700
 location_map2.plot_height = 500
 location_map2.sizing_mode = 'scale_width'
+
+
+X = np.array([i.coord for i in risky_stations])
+db = DBSCAN(eps=0.1, min_samples=5, metric='haversine', n_jobs=-1).fit(X)
+
+labels = db.labels_
+n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+print('Number of clusters:'+str(n_clusters_))
+
+unique_labels = set(labels)
+cluster_pallet = linear_palette(Turbo256, len(unique_labels))
+
+location_map3 = gmap(environ.get('API_KEY'), options2, title="Clusters", tools=tools, active_scroll="wheel_zoom")
+
+for i in unique_labels:
+    if i != -1:  # not noise
+        class_member_mask = (labels == i)
+        coord = X[class_member_mask]
+        for xy in coord:
+            location_map3.circle(x=xy[1], y=xy[0], size=15, color=cluster_pallet[i], fill_alpha=0.8)
+
+location_map3.plot_width = 700
+location_map3.plot_height = 500
+location_map3.sizing_mode = 'scale_width'
 
 
 
@@ -245,13 +269,13 @@ select_column.sizing_mode = "fixed"
 # radio_button_group.on_change('active', lambda attr, old, new: update_toggle())
 
 
-highrisk_column = column(highrisk_title, highrisk_plots, width=800, height=700)
+highrisk_column = column(highrisk_title, highrisk_plots, width=800, height=650)
 highrisk_column.sizing_mode = "fixed"
 
-predict_column = column(predict_text, predict_tabs, width=500, height=700)
+predict_column = column(predict_text, predict_tabs, width=500, height=650)
 predict_column.sizing_mode = "fixed"
 
-warning_column = column(warning_text, location_map2, width=500, height=500)
+warning_column = column(warning_text, row(location_map2, location_map3), width=1300, height=600)
 predict_column.sizing_mode = "fixed"
 
 notice = Div(text="""<footer>&copy; Copyright 2020 Weixuan Zhang, Ghifari Pradana. CUED Part 1A Lent computing project.</footer>""", width=600)

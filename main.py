@@ -221,7 +221,11 @@ for i in risky_stations:
     coord_to_station[i.coord] = i
 
 X = np.array([i.coord for i in risky_stations])
-db = DBSCAN(eps=0.1, min_samples=5, metric='haversine', n_jobs=-1).fit(X)
+X_rad = np.radians(X)
+
+ms_per_radian = 6373000.0
+eps = 15000 / ms_per_radian
+db = DBSCAN(eps=eps, min_samples=5, metric='haversine', n_jobs=-1).fit(X_rad)
 
 labels = db.labels_
 unique_labels = set(labels)

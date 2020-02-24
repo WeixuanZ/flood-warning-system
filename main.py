@@ -186,26 +186,33 @@ predict_tabs = Tabs(tabs=predict_plots)
 ## Warning
 
 warning_text = Div(
-    text="""<h3>Flooding Warnings</h3><p>All the stations with relative water level above 1.2 are shown in the map below. DBSCAN clustering algorithm is used.</p> """)
+    text="""<h3>Flooding Warnings</h3><p>All the stations with relative water level above 1.5 are shown in the map below. DBSCAN clustering algorithm is used, the clusters are shown in the plot on the left. The color indicates relative water level, while the transparency shows the risk. </p> """)
 
-risky_stations_with_level = stations_level_over_threshold(stations, 1.2)
+risky_stations_with_level = stations_level_over_threshold(stations, 1.5)
 risky_stations = [i[0] for i in risky_stations_with_level]
 risky_source = convert_to_datasource(risky_stations)
+risky_source.add(["Moderate"]*len(risky_stations), name='risk')
+risky_source.add([0.3]*len(risky_stations), name='alpha')
+risky_name_to_indx = dict()  # building a hash table for quick search up of indices
+for indx, i in enumerate(risky_source.data['name']):
+    risky_name_to_indx[i] = indx
+
 
 mapper = log_cmap(field_name='relative_level', palette=Spectral10, low=1.0,
                   high=risky_stations[0].relative_water_level())
 origin2 = (52.561928, -1.464854)
-options2 = GMapOptions(lat=origin2[0], lng=origin2[1], map_type="roadmap", zoom=5)
-location_map2 = gmap(environ.get('API_KEY'), options2, title="Stations above typical range", tools=tools,
+options2 = GMapOptions(lat=origin2[0], lng=origin2[1], map_type="roadmap", zoom=6)
+location_map2 = gmap(environ.get('API_KEY'), options2, title="Moderate to High Risk Stations", tools=tools,
                      active_scroll="wheel_zoom")
-r2 = location_map2.circle(x="lng", y="lat", size=15, color=mapper, fill_alpha=0.5, source=risky_source)
+r2 = location_map2.circle(x="lng", y="lat", size=10, color=mapper, fill_alpha="alpha", source=risky_source)
 hover_tool = HoverTool(tooltips=[
     ("Station Name", "@name"),
     ("River Name", "@river"),
     ("Town", "@town"),
     ("Latitude,Longitude", "(@lat, @lng)"),
     ("Typical Range (m)", "@typical_low - @typical_high"),
-    ("Latest Level (m)", "@latest_level")
+    ("Latest Level (m)", "@latest_level"),
+    ("Risk", "@risk")
 ])
 location_map2.add_tools(hover_tool)
 color_bar = ColorBar(color_mapper=mapper['transform'], width=8, location=(0, 0))
@@ -245,7 +252,7 @@ for i in unique_labels:
         class_member_mask = (labels == i)
         coord = X[class_member_mask]
         for xy in coord:
-            location_map3.circle(x=xy[1], y=xy[0], size=15, color=cluster_pallet[i], fill_alpha=0.8)
+            location_map3.circle(x=xy[1], y=xy[0], size=10, color=cluster_pallet[i], fill_alpha=0.8)
             label_to_stations[i].append(coord_to_station[(
                 xy[0], xy[1])])  # find the station from its coordinates and append it to the dictionary
 
@@ -275,8 +282,11 @@ for label, s in label_to_stations.items():
     cluster_levels = np.array([i.relative_water_level() for i in s])
     mean_levels.append(cluster_levels.mean())
     key_station_in_cluster.append(s[np.argmax(cluster_levels)])
-    for i in s:
+    for n, i in enumerate(s):
         risky_towns.append(i.town)
+        risky_indx = risky_name_to_indx[i.name]
+        risky_source.data['risk'][risky_indx], risky_source.data['alpha'][risky_indx] = 'High', 1.0
+
 
 risky_towns = set(risky_towns)  # to find the total number of risky towns
 # sort the towns by the mean relative water level of the cluster it is in
@@ -289,7 +299,7 @@ risky_towns_source = ColumnDataSource(
               levels=[round(i.relative_water_level(), 2) for i in key_station_in_cluster],
               mean=[round(i, 2) for i in mean_levels]))
 warning_text3 = Div(
-    text="""<p><b>{}</b> clusters found, the towns within these clusters (<b>{}</b> in total) have a risk of flooding. The table below lists the towns with the highest relative water level within each cluster in the order of decreasing risk (by calculating the mean relative water level of each cluster).</p>""".format(
+    text="""<p><b>{}</b> clusters found, the towns within these clusters (<b>{}</b> in total) have a high risk of flooding. The table below lists the towns with the highest relative water level within each cluster in the order of decreasing risk (by calculating the mean relative water level of each cluster).</p>""".format(
         num_clusters, len(risky_towns)), width=600)
 risky_town_table_columns = [
     TableColumn(field="key_towns", title="Towns with Highest Risk"),
@@ -313,7 +323,7 @@ highrisk_column.sizing_mode = "fixed"
 predict_column = column(predict_text, predict_tabs, width=500, height=650)
 predict_column.sizing_mode = "fixed"
 
-warning_column = column(warning_text, row(location_map2, location_map3), width=1300, height=550)
+warning_column = column(warning_text, row(location_map2, location_map3), width=1300, height=600)
 predict_column.sizing_mode = "fixed"
 
 river_column = column(warning_text2, width=650, height=70)

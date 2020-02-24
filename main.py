@@ -191,12 +191,11 @@ warning_text = Div(
 risky_stations_with_level = stations_level_over_threshold(stations, 1.5)
 risky_stations = [i[0] for i in risky_stations_with_level]
 risky_source = convert_to_datasource(risky_stations)
-risky_source.add(["Moderate"]*len(risky_stations), name='risk')
-risky_source.add([0.3]*len(risky_stations), name='alpha')
+risky_source.add(["Moderate"] * len(risky_stations), name='risk')
+risky_source.add([0.3] * len(risky_stations), name='alpha')
 risky_name_to_indx = dict()  # building a hash table for quick search up of indices
 for indx, i in enumerate(risky_source.data['name']):
     risky_name_to_indx[i] = indx
-
 
 mapper = log_cmap(field_name='relative_level', palette=Spectral10, low=1.0,
                   high=risky_stations[0].relative_water_level())
@@ -286,7 +285,6 @@ for label, s in label_to_stations.items():
         risky_towns.append(i.town)
         risky_indx = risky_name_to_indx[i.name]
         risky_source.data['risk'][risky_indx], risky_source.data['alpha'][risky_indx] = 'High', 1.0
-
 
 risky_towns = set(risky_towns)  # to find the total number of risky towns
 # sort the towns by the mean relative water level of the cluster it is in

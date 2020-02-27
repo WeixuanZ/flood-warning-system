@@ -171,11 +171,14 @@ for station in highrisk_stations:
         date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
                               use_pretrained=True, batch_size=256, epoch=20)
     except:
-        date, level = [], []
+        date, level = ([],[]), ([],[],[])
     predict_plot = plot_prediction(date, level)
-    poly, d0 = polyfit(date[0], level[0], 4)
-    predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])], line_width=2,
+    try:
+        poly, d0 = polyfit(date[0], level[0], 4)
+        predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])], line_width=2,
                       line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
+    except TypeError:
+        print('No data for polyfit')
     predict_plot.plot_width = 400
     predict_plot.plot_height = 400
     predict_plot.sizing_mode = 'scale_width'
@@ -186,7 +189,7 @@ predict_tabs = Tabs(tabs=predict_plots)
 ## Warning
 
 warning_text = Div(
-    text="""<h3>Flooding Warnings</h3><p>All the stations with relative water level above 1.5 are shown in the map below. DBSCAN clustering algorithm is used, the clusters are shown in the plot on the left. The color indicates relative water level, while the transparency shows the risk. </p> """)
+    text="""<h3>Flooding Warnings</h3><p>All the stations with relative water level above 1.5 are shown in the map below. DBSCAN clustering algorithm is used, the clusters are shown in the plot on the right. The color indicates relative water level, while the transparency shows the risk. </p> """)
 
 risky_stations_with_level = stations_level_over_threshold(stations, 1.5)
 risky_stations = [i[0] for i in risky_stations_with_level]
@@ -260,7 +263,7 @@ location_map3.plot_height = 500
 location_map3.sizing_mode = 'scale_width'
 
 # Risky rivers
-warning_text2 = Div(text="""<p><b>{}</b> rivers with risky stations, the top 5 is tabulated below.</p>""".format(
+warning_text2 = Div(text="""<p><b>{}</b> rivers with stations at risk, the top 5 is tabulated below.</p>""".format(
     len(rivers_with_station(risky_stations))), width=600)
 warning_text2.sizing_mode = 'scale_width'
 

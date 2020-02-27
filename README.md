@@ -9,6 +9,10 @@ https://cued-partia-flood-warning.readthedocs.io/.
 
 ## Web Interface
 
+```
+bokeh serve main.py
+```
+
 ### Map
 
 ![map](/docs/1.png)

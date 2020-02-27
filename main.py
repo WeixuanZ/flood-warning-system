@@ -2,7 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
+from collections import defaultdict
 from datetime import timedelta
+from functools import reduce
 from os import environ
 
 import numpy as np
@@ -32,24 +34,25 @@ highrisk_stations = stations_highest_rel_level(stations, 6)
 
 
 def convert_to_datasource(stations):
-    return ColumnDataSource(data=dict(lat=[i.coord[0] for i in stations],
-                                      lng=[i.coord[1] for i in stations],
-                                      name=[i.name for i in stations],
-                                      measure_id=[i.measure_id for i in stations],
-                                      river=[i.river for i in stations],
-                                      town=[i.town for i in stations],
-                                      typical_low=[i.typical_range[0] if i.typical_range is not None else 'nan' for i in
-                                                   stations],
-                                      typical_high=[i.typical_range[1] if i.typical_range is not None else 'nan' for i
-                                                    in
-                                                    stations],
-                                      latest_level=[i.latest_level if i.latest_level is not None else 'nan' for i in
-                                                    stations],
-                                      relative_level=[
-                                          i.relative_water_level() if i.relative_water_level() is not None else 'nan'
-                                          for
-                                          i in stations],
-                                      color=[map_palette(i) for i in stations]))
+    def reducer(acc, val):
+        acc['lat'].append(val.coord[0])
+        acc['lng'].append(val.coord[1])
+        acc['name'].append(val.name)
+        acc['measure_id'].append(val.measure_id)
+        acc['river'].append(val.river)
+        acc['town'].append(val.town)
+        acc['typical_low'].append(val.typical_range[0] if val.typical_range is not None else 'nan')
+        acc['typical_high'].append(val.typical_range[1] if val.typical_range is not None else 'nan')
+        acc['latest_level'].append(val.latest_level if val.latest_level is not None else 'nan')
+        acc['relative_level'].append(val.relative_water_level() if val.relative_water_level() is not None else 'nan')
+        acc['color'].append(map_palette(val))
+        return acc
+
+    return ColumnDataSource(data=reduce(
+        reducer,
+        stations,
+        defaultdict(list)
+    ))
 
 
 source = convert_to_datasource(stations)
@@ -171,12 +174,12 @@ for station in highrisk_stations:
         date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
                               use_pretrained=True, batch_size=256, epoch=20)
     except:
-        date, level = ([],[]), ([],[],[])
+        date, level = ([], []), ([], [], [])
     predict_plot = plot_prediction(date, level)
     try:
         poly, d0 = polyfit(date[0], level[0], 4)
         predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])], line_width=2,
-                      line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
+                          line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
     except TypeError:
         print('No data for polyfit')
     predict_plot.plot_width = 400
@@ -242,10 +245,7 @@ num_clusters = len(unique_labels) - (1 if -1 in labels else 0)
 print('Number of clusters:' + str(num_clusters))
 
 cluster_pallet = linear_palette(Turbo256, len(unique_labels))
-label_to_stations = dict()  # to find the list of stations knowing the cluster label
-for i in unique_labels:
-    if i != -1:
-        label_to_stations[i] = []
+label_to_stations = defaultdict(list)  # to find the list of stations knowing the cluster label
 
 location_map3 = gmap(environ.get('API_KEY'), options2, title="Clusters", tools=tools, active_scroll="wheel_zoom")
 
@@ -273,7 +273,7 @@ risky_river_table_columns = [
     TableColumn(field="name", title="River Name"),
     TableColumn(field="num", title="Number of Risky Stations"),
 ]
-risky_river_table = DataTable(source=risky_rivers_source, columns=risky_river_table_columns, width=500, height=200)
+risky_river_table = DataTable(source=risky_rivers_source, columns=risky_river_table_columns, width=500, height=140)
 risky_river_table.sizing_mode = 'scale_width'
 
 # Risky towns
@@ -308,7 +308,7 @@ risky_town_table_columns = [
     TableColumn(field="levels", title="Relative Water Level"),
     TableColumn(field="mean", title="Mean Cluster Relative Water Level"),
 ]
-risky_town_table = DataTable(source=risky_towns_source, columns=risky_town_table_columns, width=500, height=200)
+risky_town_table = DataTable(source=risky_towns_source, columns=risky_town_table_columns, width=500, height=140)
 risky_town_table.sizing_mode = 'scale_width'
 
 ## Layout

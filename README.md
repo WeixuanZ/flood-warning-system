@@ -9,9 +9,24 @@ https://cued-partia-flood-warning.readthedocs.io/.
 
 ## Web Interface
 
+To run the web interface, first set your Google Maps API key as an environment variable through
+```bash
+export API_KEY=<api_key>
+``` 
+
+Install all the dependencies in `requirements.txt`, then run
+```bash
+bokeh serve main.py --port 5100
 ```
-bokeh serve main.py
+
+Alternatively, using Docker
+```bash
+docker build -t floodwarning .
+docker run -it --rm -p 5100:5100 -e API_KEY floodwarning
 ```
+
+Go to `http://localhost:5100` from your browser.
+
 
 ### Map
 
@@ -37,7 +52,7 @@ The prediction is done both using a least-squared polynomial fit and a recurrent
 
 ### Warning
 
-When considering the risk of flooding of a town, stations cannot be considered in isolation, so clustering is used on stations whose latest water level is 1.2 times its typical range above the upper typical range. The clustering algorithm implemented is DBSCAN with haversine distance as the distance matrix.
+When considering the risk of flooding of a town, stations cannot be considered in isolation, so clustering is used on stations whose latest water level is 1.5 times its typical range above the upper typical range. The clustering algorithm implemented is DBSCAN with haversine distance as the distance matrix.
 
 Then the town with the highest relative water level in each cluster is found, sorted using the mean relative water level of the cluster containing it.
 

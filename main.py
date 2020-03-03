@@ -88,7 +88,7 @@ select_text = Div(
     text="<p>Select a station either by clicking on the map, or using the search field below, to display its historical level.</p>")
 
 # initialise data for plot of selected station
-init_indx = list(source.data['name']).index(select_input.value)
+init_indx = name_to_indx[select_input.value]
 init_dates, init_levels = fetch_measure_levels(source.data['measure_id'][init_indx], dt=timedelta(days=30))
 selected_plot_source = ColumnDataSource(
     data=dict(dates=init_dates, levels=init_levels))  # data for the selected station plot
@@ -251,8 +251,8 @@ location_map3 = gmap(environ.get('API_KEY'), options2, title="Clusters", tools=t
 
 for i in unique_labels:
     if i != -1:  # not noise
-        class_member_mask = (labels == i)
-        coord = X[class_member_mask]
+        # class_member_mask = (labels == i)
+        coord = X[labels == i]
         for xy in coord:
             location_map3.circle(x=xy[1], y=xy[0], size=10, color=cluster_pallet[i], fill_alpha=0.8)
             label_to_stations[i].append(coord_to_station[(

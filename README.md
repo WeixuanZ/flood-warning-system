@@ -14,7 +14,7 @@ To run the web interface,
     ```bash
     export API_KEY=<api_key>
     ``` 
-1. Install all the dependencies in `requirements.txt`, then run
+1. Install all the dependencies in [`requirements.txt`](/requirements.txt) (a virtual environment is strongly recommended), then run
     ```bash
     plaidml-setup  # set the device used for training
     bokeh serve main.py --port 5100
@@ -33,7 +33,7 @@ To run the web interface,
 
 ![map](/docs/1.png)
 
-The colour of each point depends on the relationship between the latest water level of that station and its typical range. Hover tool is also implemented, showing useful information when the mouse hovers above a datapoint.
+The colour of each point depends on the relationship between the latest water level of that station and its typical range. Hover tool is also implemented, showing useful information when the mouse hovers above a datapoint. Scroll wheel can be used to zoom in and out, and panning can be done by dragging.
 
 ![zoom_out](/docs/zoom_out.png)
 
@@ -51,11 +51,13 @@ The prediction is done both using a least-squared polynomial fit and a recurrent
 
 ![network](/docs/network.png)
 
+As can be seen from the above figure, RNN produces more realistic predictions, especially on periodic and exploding data.
+
 ### Warning
 
 When considering the risk of flooding of a town, stations cannot be considered in isolation, so clustering is used on stations whose latest water level is 1.5 times its typical range above the upper typical range. The clustering algorithm implemented is DBSCAN with haversine distance as the distance metric.
 
-Stations within these clusters are considered as high risks, and are shown on the map with less transparancy, while the colours indicate relative water levels.
+Stations within these clusters are considered as high risks, and are shown on the map with less transparency, while the colours indicate relative water levels.
 
 Then the town with the highest relative water level in each cluster is found, sorted using the mean relative water level of the cluster containing it.
 

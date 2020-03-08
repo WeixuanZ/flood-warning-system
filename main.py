@@ -56,9 +56,8 @@ def convert_to_datasource(stations):
 
 
 source = convert_to_datasource(stations)
-name_to_indx = dict()  # building a hash table for quick search up of indices
-for indx, i in enumerate(source.data['name']):
-    name_to_indx[i] = indx
+name_to_indx = {i:indx for indx, i in enumerate(source.data['name'])}  # building a hash table for quick search up of indices
+
 
 ## Map
 
@@ -199,9 +198,7 @@ risky_stations = [i[0] for i in risky_stations_with_level]
 risky_source = convert_to_datasource(risky_stations)
 risky_source.add(["Moderate"] * len(risky_stations), name='risk')
 risky_source.add([0.3] * len(risky_stations), name='alpha')
-risky_name_to_indx = dict()  # building a hash table for quick search up of indices
-for indx, i in enumerate(risky_source.data['name']):
-    risky_name_to_indx[i] = indx
+risky_name_to_indx = {i:indx for indx, i in enumerate(risky_source.data['name'])}  # building a hash table for quick search up of indices
 
 mapper = log_cmap(field_name='relative_level', palette=Spectral10, low=1.0,
                   high=risky_stations[0].relative_water_level())
@@ -228,11 +225,9 @@ location_map2.sizing_mode = 'scale_width'
 
 # Clustering
 
-coord_to_station = dict()  # to find the station after knowing which cluster its coordinate belongs to
-for i in risky_stations:
-    coord_to_station[i.coord] = i
+coord_to_station = {i.coord:i for i in risky_stations}  # to find the station after knowing which cluster its coordinate belongs to
 
-X = np.array([i.coord for i in risky_stations])
+X = np.array(list(coord_to_station.keys()))
 X_rad = np.radians(X)
 
 ms_per_radian = 6373000.0
@@ -252,11 +247,10 @@ location_map3 = gmap(environ.get('API_KEY'), options2, title="Clusters", tools=t
 for i in unique_labels:
     if i != -1:  # not noise
         # class_member_mask = (labels == i)
-        coord = X[labels == i]
-        for xy in coord:
-            location_map3.circle(x=xy[1], y=xy[0], size=10, color=cluster_pallet[i], fill_alpha=0.8)
+        for coord in X[labels == i]:
+            location_map3.circle(x=coord[1], y=coord[0], size=10, color=cluster_pallet[i], fill_alpha=0.8)
             label_to_stations[i].append(coord_to_station[(
-                xy[0], xy[1])])  # find the station from its coordinates and append it to the dictionary
+                coord[0], coord[1])])  # find the station from its coordinates and append it to the dictionary
 
 location_map3.plot_width = 700
 location_map3.plot_height = 500
@@ -284,7 +278,7 @@ for label, s in label_to_stations.items():
     cluster_levels = np.array([i.relative_water_level() for i in s])
     mean_levels.append(cluster_levels.mean())
     key_station_in_cluster.append(s[np.argmax(cluster_levels)])
-    for n, i in enumerate(s):
+    for i in s:
         risky_towns.append(i.town)
         risky_indx = risky_name_to_indx[i.name]
         risky_source.data['risk'][risky_indx], risky_source.data['alpha'][risky_indx] = 'High', 1.0

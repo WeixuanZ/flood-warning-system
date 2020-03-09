@@ -23,16 +23,14 @@ def fetch(url):
 
 def dump(data, filename):
     """Save JSON object to file"""
-    f = open(filename, 'w')
-    data = json.dump(data, f)
-    f.close()
+    with open(filename, 'w') as f:
+        json.dump(data, f)
 
 
 def load(filename):
     """Load JSON object from file"""
-    f = open(filename, 'r')
-    data = json.load(f)
-    f.close()
+    with open(filename, 'r') as f:
+        data = json.load(f)
     return data
 
 

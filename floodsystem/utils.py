@@ -22,8 +22,4 @@ def sorted_by_key(x, i, reverse=False):
 
     """
 
-    # Sort by distance
-    def key(element):
-        return element[i]
-
-    return sorted(x, key=key, reverse=reverse)
+    return sorted(x, key=lambda x: x[i], reverse=reverse)

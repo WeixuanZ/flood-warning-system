@@ -7,6 +7,8 @@ geographical data.
 """
 
 from math import sqrt, asin, sin, cos, radians
+from collections import defaultdict
+from functools import reduce
 
 from .utils import sorted_by_key  # noqa
 
@@ -39,10 +41,7 @@ def stations_by_distance(stations, p):
         list: List of (station, distance) sorted by distance.
     """
 
-    distances = []
-    for station in stations:
-        distances.append((station.name, station.town, haversine(station.coord, p)))
-    return sorted_by_key(distances, 2)
+    return sorted_by_key([(i.name, i.town, haversine(i.coord, p)) for i in stations], 2)
 
 
 def stations_within_radius(stations, centre, r):
@@ -80,13 +79,11 @@ def stations_by_river(stations):
         dict: Keys - river names.
     """
 
-    stations_on_river = {}
-    for station in stations:
-        if station.river not in stations_on_river:
-            stations_on_river[station.river] = [station]
-        else:
-            stations_on_river[station.river].append(station)
-    return stations_on_river
+    def reducer(acc, val):
+        acc[val.river].append(val)
+        return acc
+
+    return reduce(reducer, stations, defaultdict(list))
 
 
 def rivers_by_station_number(stations, N):

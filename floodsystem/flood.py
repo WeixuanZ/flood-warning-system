@@ -18,9 +18,12 @@ def stations_level_over_threshold(stations, tol):
     Returns:
         list: List of tuples in the format (station (type MonitoringStation), relative water level) sorted by the relative level in descending order.
     """
-    available_data = [(station, station.relative_water_level()) for station in stations if
-                      station.relative_water_level() is not None]
-    return sorted_by_key([i for i in available_data if i[1] > tol], 1, reverse=True)
+
+    return sorted_by_key(filter(
+        lambda x: x[1] > tol, 
+        [(station, station.relative_water_level()) for station in stations 
+                            if station.relative_water_level() is not None]
+        ), 1, reverse=True)
 
 
 def stations_highest_rel_level(stations, N):
@@ -33,6 +36,8 @@ def stations_highest_rel_level(stations, N):
         list: List of stations(type MonitoringStation)
     """
 
-    available_data = [(station, station.relative_water_level()) for station in stations if
-                      station.relative_water_level() is not None]
-    return [station[0] for station in [data for data in sorted_by_key(available_data, 1, True)[:N]]]
+    return map(lambda x: x[0],
+        sorted_by_key([(station, station.relative_water_level()) for station in stations 
+                            if station.relative_water_level() is not None], 1, reverse=True)[:N]
+        )
+    

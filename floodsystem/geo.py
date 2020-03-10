@@ -7,7 +7,7 @@ geographical data.
 """
 
 from math import sqrt, asin, sin, cos, radians
-from collections import defaultdict
+from itertools import groupby
 from functools import reduce
 
 from .utils import sorted_by_key  # noqa
@@ -79,11 +79,13 @@ def stations_by_river(stations):
         dict: Keys - river names.
     """
 
-    def reducer(acc, val):
-        acc[val.river].append(val)
-        return acc
-
-    return reduce(reducer, stations, defaultdict(list))
+    return {key:list(value) for key, value in groupby(
+        sorted(
+            stations, 
+            key=lambda x: x.river
+        ),
+            lambda x: x.river
+        )}
 
 
 def rivers_by_station_number(stations, N):
@@ -96,6 +98,9 @@ def rivers_by_station_number(stations, N):
         list: tuple of (river, number of stations on river) sorted in descending order
     """
 
-    rivers_and_num = sorted_by_key([(i, len(stations_by_river(stations)[i])) for i in stations_by_river(stations)], 1)
-    min_num = rivers_and_num[-N][1] if N <= len(rivers_and_num) else rivers_and_num[0][1]
-    return sorted([i for i in rivers_and_num if i[1] >= min_num], key=lambda x: (-x[1], x[0]))
+    return list(reduce(
+            lambda acc, val: acc + [val] if (len(acc) < N or val[1] == acc[-1][1]) else acc, 
+            sorted([(key, len(i)) for key, i in stations_by_river(stations).items()], key=lambda x: (-x[1], x[0])),
+            []
+        ))
+

@@ -36,8 +36,6 @@ def stations_highest_rel_level(stations, N):
         list: List of stations(type MonitoringStation)
     """
 
-    return map(lambda x: x[0],
-        sorted_by_key([(station, station.relative_water_level()) for station in stations 
-                            if station.relative_water_level() is not None], 1, reverse=True)[:N]
-        )
+    return sorted(filter(lambda x: x.relative_water_level() is not None, stations), 
+            key=lambda x: x.relative_water_level(), reverse=True)[:N]
     

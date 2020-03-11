@@ -70,8 +70,7 @@ class MonitoringStation:
         """
         This method checks whether the data it receives about the typical ranges are consistent(That data is available 
         and the low range is lower than the high range).
-        Args:
-            param1 (MonitoringStation): The instance of the class itself.
+        
         Returns:
             Boolean: Returns whether or not the data is consistent
         """
@@ -82,6 +81,7 @@ class MonitoringStation:
     def relative_water_level(self):
         """
         This method returns the latest water level as a fraction of the typical range.
+        
         Returns:
             float: 0.0 (corresponds to a level at the typical low) to 1.0 (corresponds to a level at the typical high)
         """
@@ -94,8 +94,10 @@ def inconsistent_typical_range_stations(stations):
     """
     This function checks takes in the list of stations and checks to make sure the typical
     range for each are consistent.
+    
     Args:
-        param1 (list): List of stations (type MonitoringStation).
+        stations (list): List of stations (type MonitoringStation).
+    
     Returns:
         list: List (type String) of all the stations with inconsistent typical ranges in alphabetical order
     """

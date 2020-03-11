@@ -44,10 +44,15 @@ class Map:
                                             name=[i.name for i in self.stations],
                                             river=[i.river for i in self.stations],
                                             town=[i.town for i in self.stations],
-                                            typical_low=[i.typical_range[0] if i.typical_range is not None else 'nan' for i in self.stations],
-                                            typical_high=[i.typical_range[1] if i.typical_range is not None else 'nan' for i in self.stations],
-                                            latest_level=[i.latest_level if i.latest_level is not None else 'nan' for i in self.stations],
-                                            relative_level=[i.relative_water_level() if i.relative_water_level() is not None else 'nan' for i in self.stations],
+                                            typical_low=[i.typical_range[0] if i.typical_range is not None else 'nan'
+                                                         for i in self.stations],
+                                            typical_high=[i.typical_range[1] if i.typical_range is not None else 'nan'
+                                                          for i in self.stations],
+                                            latest_level=[i.latest_level if i.latest_level is not None else 'nan' for i
+                                                          in self.stations],
+                                            relative_level=[
+                                                i.relative_water_level() if i.relative_water_level() is not None else 'nan'
+                                                for i in self.stations],
                                             color=[map_palette(i) for i in self.stations]))
         self.plot.circle(x="lng", y="lat", size=15, fill_color='color', fill_alpha=0.8, source=source)
         hover_tool = HoverTool(tooltips=[
@@ -68,10 +73,12 @@ class Map:
 def plot_water_levels(station, dates, levels):
     """
     Function that makes a graph of the water level over time for a given station.
-    Args: 
-        param1 (MonitoringStation): The desired station to graph.
-        param2 (list): The list of dates for the x-axis.
-        param3 (list): The corresponding water level for each date, y-axis.
+
+    Args:
+        station (MonitoringStation): The desired station to graph.
+        dates (list): The list of dates for the x-axis.
+        levels (list): The corresponding water level for each date, y-axis.
+
     Returns:
         Bokeh plot object.
     """
@@ -91,8 +98,10 @@ def plot_water_levels(station, dates, levels):
 def plot_water_levels_dynamic(source):
     """
     Function that makes a graph of the water level over time for a given station.
+
     Args:
-        param1 (type ColumnDataSource): The dataset.
+        source (type ColumnDataSource): The dataset.
+
     Returns:
         Bokeh plot object.
     """
@@ -111,9 +120,14 @@ def plot_water_levels_dynamic(source):
 def plot_water_levels_multiple(stations, dt, ncol=3, height=250, width=300):
     """
     Function that displays a grid of graphs of the water level over time for a given list of stations.
+    
     Args:
-        param1 (list): List of the desired stations (type MonitoringStation) to graph
-        param2 (int): Number of days.
+        stations (list): List of the desired stations (type MonitoringStation) to graph.
+        dt (int): Number of days.
+        ncol (int, optional): Number of columns.
+        height (int, optional): Height of each individual plot.
+        width (int, optional): Width of each individual plot.
+    
     Returns:
         Bokeh plot object.
     """
@@ -152,9 +166,11 @@ def plot_water_levels_multiple(stations, dt, ncol=3, height=250, width=300):
 def plot_prediction(date, data):
     """
     Function that plots the prediction made by predictor.
+
     Args:
-        param1 (2-tuple): List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
-        param2 (3-tuple): Lists of water levels of actual data, demo data, predicted data.
+        date (2-tuple): List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
+        data (3-tuple): Lists of water levels of actual data, demo data, predicted data.
+
     Returns:
         Bokeh plot object.
     """
@@ -177,14 +193,17 @@ def plot_prediction(date, data):
 
     return p
 
+
 def plot_water_level_with_fit(station, dates, levels, p):
     """
     Function that makes a graph of the water level over time for a given station with a least-square fit polynomial with a degree of p.
-    Args: 
-        param1 (MonitoringStation): The desired station to graph.
-        param2 (list): The list of dates for the x-axis.
-        param3 (list): The corresponding water level for each date, y-axis.
-        param4 (int): The degree of polynomial that is desired.
+
+    Args:
+        station (MonitoringStation): The desired station to graph.
+        dates (list): The list of dates for the x-axis.
+        levels (list): The corresponding water level for each date, y-axis.
+        p (int): The degree of polynomial that is desired.
+
     Returns:
         Bokeh plot object.
     """

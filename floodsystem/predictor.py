@@ -23,10 +23,12 @@ np.random.seed(6)  # for reproducibility
 def fetch_levels(station_name, dt, return_date=False):
     """
     Function that returns measurements and dates of a specified station since a specified number of days ago.
+    
     Args:
         station_name (str): The name of the station.
         dt (int): The number of days.
-        [return_date (bool)]: Whether to return the dates (default False)
+        return_date (bool, optional): Whether to return the dates (default False)
+    
     Returns:
         If return_date False:
             array: Water levels.
@@ -51,10 +53,12 @@ def fetch_levels(station_name, dt, return_date=False):
 def data_prep(data, lookback, exclude=0):
     """
     Function that prepares the dataset by constructing x,y pairs. Each y is determined on the previous <lookback> data points (x).
+    
     Args:
         data (array): The water level data.
         lookback (int): The look back value, i.e. every y is determined how many x.
-        [exclude (int)]: The number of latest data points to ignore (default 0).
+        exclude (int, optional): The number of latest data points to ignore (default 0).
+    
     Returns:
         array: x.
         array: y.
@@ -71,8 +75,10 @@ def data_prep(data, lookback, exclude=0):
 def build_model(lookback):
     """
     Function that builds the recurrent neural network, which has 1 lstm layer and 2 dense layers.
+    
     Args:
         lookback (int): The look back value, which determines the input shape.
+    
     Returns:
         Keras model: Untrained model.
     """
@@ -89,14 +95,16 @@ def build_model(lookback):
 def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/predictor_model.hdf5', show_loss=False):
     """
     Function that trains and saves the Keras model.
+    
     Args:
         model (Keras model): The built model.
         x (list): x.
         y (list): y.
         batch_size (int): Batch size.
         epoch (int): Number of epochs.
-        [save_file (str)]: Path to save the trained model file (default: './floodsystem/cache/predictor_model.hdf5')
-        [show_loss (bool)]: Whether to display the loss-epoch graph after training.
+        save_file (str, optional): Path to save the trained model file (default: './floodsystem/cache/predictor_model.hdf5')
+        show_loss (bool, optional): Whether to display the loss-epoch graph after training.
+    
     Returns:
         Keras model: The trained model.
     """
@@ -116,12 +124,13 @@ def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/p
 def train_all(stations, dataset_size=1000, lookback=2000, batch_size=256, epoch=20):
     """
     Function that trains models for all station supplied.
+    
     Args:
         stations (list): List of MonitoringStation objects.
-        [dataset_size (int)]: The number of days in the dataset (default: 1000).
-        [loockback (int)]: Look back value (default: 2000).
-        [batch_size (int)]: (default: 256).
-        [epoch (int)]: (default: 20).
+        dataset_size (int, optional): The number of days in the dataset (default: 1000).
+        lookback (int, optional): Look back value (default: 2000).
+        batch_size (int, optional): (default: 256).
+        epoch (int, optional): (default: 20).
     """
     for i, station in enumerate(stations):
         print('Training for {} ({}/{})'.format(station.name, i, len(stations)))
@@ -137,15 +146,17 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
     """
     Function that predict a specified number of future water levels of a specific station, if the model for that station is not cached, it will be trained according to the parameters specified.
     The returned data includes actual data over the specified interval, demonstration data the model produced based on actual data points prior to the displayed actual data, and the predicted date using all the available actual data.
+    
     Args:
         station_name (str): The name of the station.
-        [dataset_size (int)]: The number of days in the dataset (default: 1000).
-        [lookback (int)]: Look back value (default: 2000).
-        [iteration (int)]: Number of future water levels to be predicted (effectively the number of times data in passed to the nn) (default: 100).
-        [display (int)]: Number of real data points to be returned (default: 300).
-        [use_pretrained (bool)]: Whether to used pretrained model if possible (default: True).
-        [batch_size (int)]: (default: 256).
-        [epoch (int)]: (default: 20).
+        dataset_size (int, optional): The number of days in the dataset (default: 1000).
+        lookback (int, optional): Look back value (default: 2000).
+        iteration (int, optional): Number of future water levels to be predicted (effectively the number of times data in passed to the nn) (default: 100).
+        display (int, optional): Number of real data points to be returned (default: 300).
+        use_pretrained (bool, optional): Whether to used pretrained model if possible (default: True).
+        batch_size (int, optional): (default: 256).
+        epoch (int, optional): (default: 20).
+    
     Returns:
         2-tuple (list, list): List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
         3-tuple (list, list, list): Lists of water levels of actual data, demo data, predicted data.

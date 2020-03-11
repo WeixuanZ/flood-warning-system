@@ -6,9 +6,9 @@ geographical data.
 
 """
 
-from math import sqrt, asin, sin, cos, radians
-from itertools import groupby
 from functools import reduce
+from itertools import groupby
+from math import sqrt, asin, sin, cos, radians
 
 from .utils import sorted_by_key  # noqa
 
@@ -79,13 +79,13 @@ def stations_by_river(stations):
         dict: Keys - river names.
     """
 
-    return {key:list(value) for key, value in groupby(
+    return {key: list(value) for key, value in groupby(
         sorted(
-            stations, 
+            stations,
             key=lambda x: x.river
         ),
-            lambda x: x.river
-        )}
+        lambda x: x.river
+    )}
 
 
 def rivers_by_station_number(stations, N):
@@ -99,8 +99,10 @@ def rivers_by_station_number(stations, N):
     """
 
     return list(reduce(
-            lambda acc, val: acc + [val] if (len(acc) < N or val[1] == acc[-1][1]) else acc, 
-            sorted([(key, len(i)) for key, i in stations_by_river(stations).items()], key=lambda x: (-x[1], x[0])),
-            []
-        ))
-
+        lambda acc, val: acc + [val] if (len(acc) < N or val[1] == acc[-1][1]) else acc,
+        sorted(
+            [(key, len(i)) for key, i in stations_by_river(stations).items()],
+            key=lambda x: (-x[1], x[0])
+        ),
+        []
+    ))

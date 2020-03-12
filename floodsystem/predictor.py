@@ -13,8 +13,12 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, LSTM
 
-from .datafetcher import fetch_measure_levels
-from .stationdata import build_station_list
+try:
+    from .datafetcher import fetch_measure_levels
+    from .stationdata import build_station_list
+except ImportError:
+    from datafetcher import fetch_measure_levels
+    from stationdata import build_station_list
 
 scalar = MinMaxScaler(feature_range=(0, 1))
 np.random.seed(6)  # for reproducibility

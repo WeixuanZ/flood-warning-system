@@ -12,8 +12,12 @@ from bokeh.models import ColumnDataSource, GMapOptions, HoverTool, DatetimeTickF
 from bokeh.plotting import figure, gmap
 from matplotlib.dates import date2num
 
-from .analysis import polyfit
-from .datafetcher import fetch_measure_levels
+try:
+    from .analysis import polyfit
+    from .datafetcher import fetch_measure_levels
+except ImportError:
+    from analysis import polyfit
+    from datafetcher import fetch_measure_levels
 
 
 def map_palette(station):

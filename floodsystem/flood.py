@@ -6,7 +6,10 @@ flooding.
 
 """
 
-from .utils import sorted_by_key
+try:
+    from .utils import sorted_by_key
+except ImportError:
+    from utils import sorted_by_key
 
 
 def stations_level_over_threshold(stations, tol):

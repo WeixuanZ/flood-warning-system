@@ -8,7 +8,11 @@ for manipulating/modifying station data
 
 
 class MonitoringStation:
-    """This class represents a river level monitoring station"""
+    """This class represents a river level monitoring station
+    
+    Attributes:
+        latest_level (float): The latest water level of the station
+    """
 
     def __init__(self, station_id, measure_id, label, coord, typical_range,
                  river, town):
@@ -30,30 +34,37 @@ class MonitoringStation:
 
     @property
     def station_id(self):
+        """str: station_id"""
         return self._station_id
 
     @property
     def measure_id(self):
+        """str: measure_id"""
         return self._measure_id
 
     @property
     def name(self):
+        """str: Station name"""
         return self._name
 
     @property
     def coord(self):
+        """tuple: Coorinates of the station in (latitude, longitude)"""
         return self._coord
 
     @property
     def typical_range(self):
+        """tuple: Typical water level range of the station (typical_low, typical_high)"""
         return self._typical_range
 
     @property
     def river(self):
+        """str: River name"""
         return self._river
 
     @property
     def town(self):
+        """str: Town name"""
         return self._town
 
     def __repr__(self):

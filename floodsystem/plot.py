@@ -1,7 +1,8 @@
 # Copyright (C) 2020 Ghifari Pradana & Weixuan Zhang
 #
 # SPDX-License-Identifier: MIT
-
+"""This module contains functions for plotting
+"""
 from datetime import timedelta
 from os import environ
 

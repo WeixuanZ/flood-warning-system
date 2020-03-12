@@ -1,6 +1,8 @@
 # Copyright (C) 2020 Weixuan Zhang
 #
 # SPDX-License-Identifier: MIT
+"""This module contains functions for the recurrent neural network that predicts furture water levels
+"""
 import os
 
 os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
@@ -34,11 +36,16 @@ def fetch_levels(station_name, dt, return_date=False):
         return_date (bool, optional): Whether to return the dates (default False)
     
     Returns:
-        If return_date False:
-            array: Water levels.
-        If return_date True:
-            list: List of dates (datetime object).
-            array: Water levels.
+
+        * If return_date False
+        
+            - array - Water levels.
+
+        * If return_date True
+
+            - list - List of dates (datetime object).
+            - array - Water levels.
+
     """
     stations = build_station_list()
     try:
@@ -148,7 +155,10 @@ def train_all(stations, dataset_size=1000, lookback=2000, batch_size=256, epoch=
 def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=True,
             batch_size=256, epoch=20):
     """
-    Function that predict a specified number of future water levels of a specific station, if the model for that station is not cached, it will be trained according to the parameters specified.
+    Function that predict a specified number of future water levels of a specific station.
+
+    If the model for that station is not cached, it will be trained according to the parameters specified.
+    
     The returned data includes actual data over the specified interval, demonstration data the model produced based on actual data points prior to the displayed actual data, and the predicted date using all the available actual data.
     
     Args:
@@ -162,8 +172,10 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
         epoch (int, optional): (default: 20).
     
     Returns:
-        2-tuple (list, list): List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
-        3-tuple (list, list, list): Lists of water levels of actual data, demo data, predicted data.
+        tuple: 
+            2-tuple (list, list) - List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
+            
+            3-tuple (list, list, list) - Lists of water levels of actual data, demo data, predicted data.
     """
     date, levels = fetch_levels(station_name, dataset_size, return_date=True)
     scalar.fit(levels.reshape(-1, 1))  # fit the scalar on across the entire dataset

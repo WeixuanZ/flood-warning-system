@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 """This module provides interface for extracting station data from
-JSON objects fetched from the Internet and
+JSON objects fetched from the Internet and updating their water levels
 
 """
 
@@ -18,10 +18,16 @@ def build_station_list(use_cache=True):
     """Build and return a list of all river level monitoring stations
     based on data fetched from the Environment agency. Each station is
     represented as a MonitoringStation object.
-
+    
     The available data for some station is incomplete or not
     available.
-
+    
+    Args:
+        use_cache (bool, optional): Whether to use cached data
+    
+    Returns:
+        list: List of stations (MonitoringStation Object)
+    
     """
 
     # Fetch station data
@@ -68,7 +74,11 @@ def build_station_list(use_cache=True):
 
 
 def update_water_levels(stations):
-    """Attach level data contained in measure_data to stations"""
+    """Attach level data contained in measure_data to stations
+    
+    Args:
+        stations (list): List of stations (MonitoringStation Object)
+    """
 
     # Fetch level data
     measure_data = datafetcher.fetch_latest_water_level_data()

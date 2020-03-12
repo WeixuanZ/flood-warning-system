@@ -15,20 +15,39 @@ import requests
 
 
 def fetch(url):
-    """Fetch data from url and return fetched JSON object"""
+    """Fetch data from url and return fetched JSON object
+    
+    Args:
+        url (str): url to be fetched
+    
+    Returns:
+        dict: Json string fetched
+    """
     r = requests.get(url)
     data = r.json()
     return data
 
 
 def dump(data, filename):
-    """Save JSON object to file"""
+    """Save JSON object to file
+    
+    Args:
+        data (dict): Json string to be saved
+        filename (str): Path to file
+    """
     with open(filename, 'w') as f:
         json.dump(data, f)
 
 
 def load(filename):
-    """Load JSON object from file"""
+    """Load JSON object from file
+    
+    Args:
+        filename (str): Path to file
+    
+    Returns:
+        dict: Json string
+    """
     with open(filename, 'r') as f:
         data = json.load(f)
     return data
@@ -38,12 +57,18 @@ def fetch_station_data(use_cache=True):
     """Fetch data from Environment agency for all active river level
     monitoring stations via a REST API and return retrieved data as a
     JSON object.
-
+    
     Fetched data is dumped to a cache file so on subsequent call it can
     optionally be retrieved from the cache file. This is faster than
     retrieval over the Internet and avoids excessive calls to the
     Environment Agency service.
-
+    
+    Args:
+        use_cache (bool, optional): Whether to use cached data
+    
+    Returns:
+        dict: Json string
+    
     """
 
     # URL for retrieving data for active stations with river level
@@ -77,7 +102,14 @@ def fetch_station_data(use_cache=True):
 
 
 def fetch_latest_water_level_data(use_cache=False):
-    """Fetch latest levels from all 'measures'. Returns JSON object"""
+    """Fetch latest levels from all 'measures'. Returns JSON object
+    
+    Args:
+        use_cache (bool, optional): Whether to use cached data
+    
+    Returns:
+        dict: Json string
+    """
 
     # URL for retrieving data
     url = "http://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage&qualifier=level"  # noqa
@@ -108,7 +140,14 @@ def fetch_latest_water_level_data(use_cache=False):
 def fetch_measure_levels(measure_id, dt):
     """Fetch measure levels from latest reading and going back a period
     dt. Return list of dates and a list of values.
-
+    
+    Args:
+        measure_id (str): measure_id of the specified station
+        dt (DateTime Object): Period of time
+    
+    Returns:
+        tuple: Tuple of lists of the form (dates, levels)
+    
     """
 
     # Current time (UTC)
@@ -139,8 +178,8 @@ def fetch_measure_levels(measure_id, dt):
 
     return dates, levels
 
-if __name__=="__main__":
-    print("Example of station data:")
-    print(json.dumps(fetch_station_data()['items'][0], indent=4))
-    print("Example of water level data:")
-    print(json.dumps(fetch_latest_water_level_data()['items'][0], indent=4))
+# if __name__=="__main__":
+#     print("Example of station data:")
+#     print(json.dumps(fetch_station_data()['items'][0], indent=4))
+#     print("Example of water level data:")
+#     print(json.dumps(fetch_latest_water_level_data()['items'][0], indent=4))

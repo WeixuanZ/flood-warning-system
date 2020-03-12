@@ -10,7 +10,10 @@ from functools import reduce
 from itertools import groupby
 from math import sqrt, asin, sin, cos, radians
 
-from .utils import sorted_by_key  # noqa
+try:
+    from .utils import sorted_by_key  # noqa
+except ImportError:
+    from utils import sorted_by_key
 
 
 def haversine(a, b):

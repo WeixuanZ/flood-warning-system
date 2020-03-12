@@ -6,6 +6,9 @@ Engineering, University of Cambridge.
 The activity is documented at
 https://cued-partia-flood-warning.readthedocs.io/.
 
+The documentation can be found [here](/docs/flood-warning-system.pdf).
+
+
 
 ## Web Interface
 

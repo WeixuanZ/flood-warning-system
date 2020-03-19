@@ -57,8 +57,7 @@ def fetch_levels(station_name, dt, return_date=False):
 
     if return_date:
         return date[::-1], np.array(data[::-1])
-    else:
-        return np.array(data[::-1])
+    return np.array(data[::-1])
 
 
 def data_prep(data, lookback, exclude=0):
@@ -183,7 +182,7 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
     if use_pretrained:
         try:
             model = keras.models.load_model('./floodsystem/cache/{}.hdf5'.format(station_name))
-        except:
+        except Exception:
             print('No pre-trained model for {} found, training a model for it now.'.format(station_name))
             x_train, y_train = data_prep(levels, lookback)
             model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
@@ -198,7 +197,7 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
     predictions = None
     pred_levels = scalar.transform(levels[-lookback:].reshape(-1, 1))
     pred_levels = pred_levels.reshape(1, 1, lookback)
-    for i in range(iteration):
+    for _ in range(iteration):
         prediction = model.predict(pred_levels)
         pred_levels = np.append(pred_levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         predictions = np.append(predictions, prediction, axis=0) if predictions is not None else prediction
@@ -206,7 +205,7 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
     # demo of prediction of the last <display> data points, which is based on the <lookback> values before the final 100 points
     demo = None
     demo_levels = scalar.transform(levels[-display - lookback:-display].reshape(-1, 1)).reshape(1, 1, lookback)
-    for i in range(display):
+    for _ in range(display):
         prediction = model.predict(demo_levels)
         demo_levels = np.append(demo_levels[:, :, -lookback + 1:], prediction.reshape(1, 1, 1), axis=2)
         demo = np.append(demo, prediction, axis=0) if demo is not None else prediction

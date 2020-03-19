@@ -176,7 +176,7 @@ for station in highrisk_stations:
     try:
         date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
                               use_pretrained=True, batch_size=256, epoch=20)
-    except:
+    except Exception:
         date, level = ([], []), ([], [], [])
     predict_plot = plot_prediction(date, level)
     try:
@@ -252,7 +252,6 @@ location_map3 = gmap(environ.get('API_KEY'), options2, title="Clusters", tools=t
 
 for i in unique_labels:
     if i != -1:  # not noise
-        # class_member_mask = (labels == i)
         for coord in X[labels == i]:
             location_map3.circle(x=coord[1], y=coord[0], size=10, color=cluster_pallet[i], fill_alpha=0.8)
             label_to_stations[i].append(coord_to_station[(

@@ -1,7 +1,9 @@
 # Copyright (C) 2020 Weixuan Zhang
 #
 # SPDX-License-Identifier: MIT
-"""This module contains functions for the recurrent neural network that predicts furture water levels
+"""This module contains functions for the recurrent neural network that
+predicts future water levels
+
 """
 import os
 

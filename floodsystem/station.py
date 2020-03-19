@@ -87,7 +87,7 @@ class MonitoringStation:
         """
 
         return type(self._typical_range) is tuple and self._typical_range != (0., 0.) and self._typical_range[0] < \
-               self.typical_range[1]
+            self.typical_range[1]
 
     def relative_water_level(self):
         """

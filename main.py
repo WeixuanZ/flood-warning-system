@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging
 from collections import defaultdict
 from datetime import timedelta
 from functools import reduce
@@ -25,6 +26,9 @@ from floodsystem.geo import rivers_by_station_number, rivers_with_station
 from floodsystem.plot import map_palette, plot_water_levels_dynamic, plot_water_levels_multiple, plot_prediction
 from floodsystem.predictor import predict
 from floodsystem.stationdata import build_station_list, update_water_levels
+
+logger = logging.getLogger('main')
+logger.setLevel(logging.INFO)
 
 ## Fetching and preparing data
 
@@ -56,8 +60,8 @@ def convert_to_datasource(stations):
 
 
 source = convert_to_datasource(stations)
-name_to_indx = {i:indx for indx, i in enumerate(source.data['name'])}  # building a hash table for quick search up of indices
-
+name_to_indx = {i: indx for indx, i in
+                enumerate(source.data['name'])}  # building a hash table for quick search up of indices
 
 ## Map
 
@@ -99,7 +103,7 @@ def update_text_select(attr, old, new):
     Function that updates the selected plot according to the name text provided.
     """
     global current_selection
-    print('Current Selection: ' + str(current_selection))
+    logger.info('Current Selection: {}'.format(current_selection))
     input_text = select_input.value
     if input_text == current_selection[0]:  # without fuzzy match, the new station is equal to the current station
         return
@@ -109,7 +113,7 @@ def update_text_select(attr, old, new):
             0]:  # after fuzzy match, the new station is equal to the current station
             select_input.value = selected_station_name
             return
-        print('Input: ' + input_text + ', Matched: ' + selected_station_name)
+        logger.info('Input: {}, Matched: {}'.format(input_text, selected_station_name))
         indx = name_to_indx[selected_station_name]
         current_selection = [selected_station_name, indx]  # update the current selection cache
         r.data_source.selected.indices = [indx]  # update the selection on map
@@ -132,14 +136,14 @@ def update_map_select(attr, old, new):
     Function that updates the selected plot according to selection on map.
      """
     global current_selection
-    print('Current Selection: ' + str(current_selection))
+    logger.info('Current Selection: {}'.format(current_selection))
     # if map_select is True and indx != []:
     if new:  # if the selection is not empty
         indx = new[0]
         if indx == current_selection[1]:
             return
         selected_station_name = source.data['name'][indx]
-        print('Selected on map: ' + selected_station_name)
+        logger.info('Selected on map: {}'.format(selected_station_name))
         current_selection = [selected_station_name, indx]  # update the current selection cache
         select_input.value = selected_station_name  # update the displayed text in the text input box
         dates, levels = fetch_measure_levels(source.data['measure_id'][indx], dt=timedelta(days=30))
@@ -180,7 +184,7 @@ for station in highrisk_stations:
         predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])], line_width=2,
                           line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
     except TypeError:
-        print('No data for polyfit')
+        logger.error('No data for polyfit')
     predict_plot.plot_width = 400
     predict_plot.plot_height = 400
     predict_plot.sizing_mode = 'scale_width'
@@ -198,7 +202,8 @@ risky_stations = [i[0] for i in risky_stations_with_level]
 risky_source = convert_to_datasource(risky_stations)
 risky_source.add(["Moderate"] * len(risky_stations), name='risk')
 risky_source.add([0.3] * len(risky_stations), name='alpha')
-risky_name_to_indx = {i:indx for indx, i in enumerate(risky_source.data['name'])}  # building a hash table for quick search up of indices
+risky_name_to_indx = {i: indx for indx, i in
+                      enumerate(risky_source.data['name'])}  # building a hash table for quick search up of indices
 
 mapper = log_cmap(field_name='relative_level', palette=Spectral10, low=1.0,
                   high=risky_stations[0].relative_water_level())
@@ -225,7 +230,8 @@ location_map2.sizing_mode = 'scale_width'
 
 # Clustering
 
-coord_to_station = {i.coord:i for i in risky_stations}  # to find the station after knowing which cluster its coordinate belongs to
+coord_to_station = {i.coord: i for i in
+                    risky_stations}  # to find the station after knowing which cluster its coordinate belongs to
 
 X = np.array(list(coord_to_station.keys()))
 X_rad = np.radians(X)
@@ -237,7 +243,7 @@ db = DBSCAN(eps=eps, min_samples=5, metric='haversine', n_jobs=-1).fit(X_rad)
 labels = db.labels_
 unique_labels = set(labels)
 num_clusters = len(unique_labels) - (1 if -1 in labels else 0)
-print('Number of clusters:' + str(num_clusters))
+logger.info('Number of clusters: {}'.format(num_clusters))
 
 cluster_pallet = linear_palette(Turbo256, len(unique_labels))
 label_to_stations = defaultdict(list)  # to find the list of stations knowing the cluster label

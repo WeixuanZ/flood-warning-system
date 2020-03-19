@@ -86,7 +86,7 @@ class MonitoringStation:
             Boolean: Returns whether or not the data is consistent
         """
 
-        return type(self._typical_range) == tuple and self._typical_range != (0., 0.) and self._typical_range[0] < \
+        return type(self._typical_range) is tuple and self._typical_range != (0., 0.) and self._typical_range[0] < \
                self.typical_range[1]
 
     def relative_water_level(self):
@@ -114,4 +114,3 @@ def inconsistent_typical_range_stations(stations):
     """
 
     return sorted([i.name for i in stations if i.typical_range_consistent() is False])
-    

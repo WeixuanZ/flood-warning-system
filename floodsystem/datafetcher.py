@@ -173,7 +173,7 @@ def fetch_measure_levels(measure_id, dt):
         try:
             levels.append(measure['value'])
             dates.append(d)
-        except:
+        except Exception:
             continue
 
     return dates, levels

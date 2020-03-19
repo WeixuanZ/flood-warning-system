@@ -84,7 +84,7 @@ def update_water_levels(stations):
     measure_data = datafetcher.fetch_latest_water_level_data()
 
     # Build map from measure id to latest reading (value)
-    measure_id_to_value = dict()
+    measure_id_to_value = {}
     for measure in measure_data['items']:
         if 'latestReading' in measure:
             latest_reading = measure['latestReading']

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 """This module contains functions for plotting
+
 """
 from datetime import timedelta
 from os import environ
@@ -22,18 +23,41 @@ except ImportError:
 
 
 def map_palette(station):
+    """
+    Function that returns the colour of a given station to use on the map, depending on the relationship between latest level and typical range.
+
+    Args:
+        station (MonitoringStation): The station.
+
+    Returns:
+        str: One of
+
+            * 'gray' - typical range not consistent
+            * 'red' - above the typical range
+            * 'green' - below the typical range
+            * 'blue' - within the typical range
+
+    """
     if station.typical_range_consistent() is False or station.latest_level is None:
         return 'gray'
     elif station.latest_level > station.typical_range[1]:
         return 'red'
     elif station.latest_level < station.typical_range[0]:
         return 'green'
-    else:
-        return 'blue'
+    return 'blue'
 
 
 class Map:
-    """This class represents a map of stations."""
+    """This class represents a map of stations.
+    
+    Attributes:
+        locations (list): List of coordinates.
+        options (GMapOptions): Google Map options, see Bokeh documentation.
+        plot (gmap): Bokeh gmap object.
+        stations (list): List of stations (MonitoringStation).
+        tools (str): String of names of all the enabled tools, separated by commas.
+    
+    """
 
     def __init__(self, stations, origin=(52.2070, 0.1131)):
         self.stations = stations
@@ -44,6 +68,11 @@ class Map:
                          active_scroll="wheel_zoom")
 
     def build(self):
+        """Build the map.
+
+        Returns:
+            Bokeh plot object.
+        """
         output_file("map.html")
         source = ColumnDataSource(data=dict(lat=[i[0] for i in self.locations], lng=[i[1] for i in self.locations],
                                             name=[i.name for i in self.stations],

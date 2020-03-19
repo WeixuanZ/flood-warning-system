@@ -37,7 +37,18 @@ update_water_levels(stations)
 highrisk_stations = stations_highest_rel_level(stations, 6)
 
 
-def convert_to_datasource(stations):
+def convert_to_datasource(station_list):
+    """Function that converts a list of stations into a ColumnDataSource with all the relevant attributes as columns.
+    
+    Args:
+        station_list (list): List of stations (MonitoringStation).
+    
+    Returns:
+        ColumnDataSource: Columns includes lat, lng, name, measure_id, river, town, typical_low, typical_high,
+        latest_level, relative_level, color
+
+    """
+
     def reducer(acc, val):
         acc['lat'].append(val.coord[0])
         acc['lng'].append(val.coord[1])
@@ -54,14 +65,14 @@ def convert_to_datasource(stations):
 
     return ColumnDataSource(data=reduce(
         reducer,
-        stations,
+        station_list,
         defaultdict(list)
     ))
 
 
 source = convert_to_datasource(stations)
-name_to_indx = {i: indx for indx, i in
-                enumerate(source.data['name'])}  # building a hash table for quick search up of indices
+# building a hash table for quick search up of indices
+name_to_indx = {i: indx for indx, i in enumerate(source.data['name'])}
 
 ## Map
 
@@ -109,8 +120,8 @@ def update_text_select(attr, old, new):
         return
     if input_text != '':
         selected_station_name = process.extractOne(input_text, source.data['name'])[0]
-        if selected_station_name == current_selection[
-            0]:  # after fuzzy match, the new station is equal to the current station
+        if selected_station_name == current_selection[0]:
+            # after fuzzy match, the new station is equal to the current station
             select_input.value = selected_station_name
             return
         logger.info('Input: {}, Matched: {}'.format(input_text, selected_station_name))
@@ -132,9 +143,8 @@ select_input.on_change('value', update_text_select)
 
 
 def update_map_select(attr, old, new):
+    """Function that updates the selected plot according to selection on map.
     """
-    Function that updates the selected plot according to selection on map.
-     """
     global current_selection
     logger.info('Current Selection: {}'.format(current_selection))
     # if map_select is True and indx != []:
@@ -202,8 +212,8 @@ risky_stations = [i[0] for i in risky_stations_with_level]
 risky_source = convert_to_datasource(risky_stations)
 risky_source.add(["Moderate"] * len(risky_stations), name='risk')
 risky_source.add([0.3] * len(risky_stations), name='alpha')
-risky_name_to_indx = {i: indx for indx, i in
-                      enumerate(risky_source.data['name'])}  # building a hash table for quick search up of indices
+# building a hash table for quick search up of indices
+risky_name_to_indx = {i: indx for indx, i in enumerate(risky_source.data['name'])}
 
 mapper = log_cmap(field_name='relative_level', palette=Spectral10, low=1.0,
                   high=risky_stations[0].relative_water_level())
@@ -230,8 +240,8 @@ location_map2.sizing_mode = 'scale_width'
 
 # Clustering
 
-coord_to_station = {i.coord: i for i in
-                    risky_stations}  # to find the station after knowing which cluster its coordinate belongs to
+# to find the station after knowing which cluster its coordinate belongs to
+coord_to_station = {i.coord: i for i in risky_stations}
 
 X = np.array(list(coord_to_station.keys()))
 X_rad = np.radians(X)
@@ -254,8 +264,8 @@ for i in unique_labels:
     if i != -1:  # not noise
         for coord in X[labels == i]:
             location_map3.circle(x=coord[1], y=coord[0], size=10, color=cluster_pallet[i], fill_alpha=0.8)
-            label_to_stations[i].append(coord_to_station[(
-                coord[0], coord[1])])  # find the station from its coordinates and append it to the dictionary
+            label_to_stations[i].append(coord_to_station[(coord[0], coord[1])])
+            # find the station from its coordinates and append it to the dictionary
 
 location_map3.plot_width = 700
 location_map3.plot_height = 500
@@ -295,9 +305,11 @@ key_station_in_cluster = sorted(key_station_in_cluster, key=lambda x: mean_level
 mean_levels = sorted(mean_levels, reverse=True)
 
 risky_towns_source = ColumnDataSource(
-    data=dict(key_stations=[i.name for i in key_station_in_cluster], key_towns=[i.town for i in key_station_in_cluster],
+    data=dict(key_stations=[i.name for i in key_station_in_cluster],
+              key_towns=[i.town for i in key_station_in_cluster],
               levels=[round(i.relative_water_level(), 2) for i in key_station_in_cluster],
-              mean=[round(i, 2) for i in mean_levels]))
+              mean=[round(i, 2) for i in mean_levels]
+              ))
 warning_text3 = Div(
     text="""<p><b>{}</b> clusters found, the towns within these clusters (<b>{}</b> in total) have a high risk of flooding. The table below lists the towns with the highest relative water level within each cluster in the order of decreasing risk (by calculating the mean relative water level of each cluster).</p>""".format(
         num_clusters, len(risky_towns)), width=600)

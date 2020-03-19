@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 """This module contains function for polynomial fitting on data
+
 """
 import numpy as np
 from matplotlib.dates import date2num

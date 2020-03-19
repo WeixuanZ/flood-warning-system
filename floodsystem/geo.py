@@ -41,7 +41,7 @@ def stations_by_distance(stations, p):
     Function that returns the sorted distances between the input stations and a specified point p.
     
     Args:
-        stations (list): List of stations (type MonitoringStation).
+        stations (list): List of stations (MonitoringStation).
         p (tuple): Coordinate of the origin.
     
     Returns:
@@ -53,15 +53,15 @@ def stations_by_distance(stations, p):
 
 def stations_within_radius(stations, centre, r):
     """
-    Function that returns a list of all stations (type MonitoringStation) within radius r of a geographic coordinate.
+    Function that returns a list of all stations (MonitoringStation) within radius r of a geographic coordinate.
     
     Args:
-        stations (list): List of stations (type MonitoringStation).
+        stations (list): List of stations (MonitoringStation).
         centre (tuple): Coordinate of centre in (latitude, longitude).
         r (float): Radius in kilometers.
     
     Returns:
-        list: List of stations (type MonitoringStation) within the distance.
+        list: List of stations (MonitoringStation) within the distance.
     """
 
     return [station for station in stations if haversine(station.coord, centre) <= r]
@@ -72,7 +72,7 @@ def rivers_with_station(stations):
     Function that, given a list of station objects, returns a container with the names of the rivers with a monitoring station.
     
     Args:
-        stations (list): List of stations (type MonitoringStation).
+        stations (list): List of stations (MonitoringStation).
     
     Returns:
         set: Set of names of rivers with a monitoring station.
@@ -86,7 +86,7 @@ def stations_by_river(stations):
     Function that returns a dictionary that maps river names (the ‘key’) to a list of station objects on a given river.
     
     Args:
-        stations (list): List of stations (type MonitoringStation).
+        stations (list): List of stations (MonitoringStation).
     
     Returns:
         dict: Keys - river names.
@@ -105,8 +105,8 @@ def rivers_by_station_number(stations, N):
     """
     Function that returns a list of tuples containing the river name and the number of stations it has.
     
-    Args: 
-        stations (list): List of stations (type MonitoringStations)
+    Args:
+        stations (list): List of stations (MonitoringStation)
         N (int): The number of desired rivers with the largest number of stations
     
     Returns:

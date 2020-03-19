@@ -8,6 +8,7 @@ https://cued-partia-flood-warning.readthedocs.io/.
 
 The documentation can be found [here](/docs/flood-warning-system.pdf).
 
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/WeixuanZ/flood-warning-system/?ref=repository-badge)
 
 
 ## Web Interface

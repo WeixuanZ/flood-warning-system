@@ -1,9 +1,7 @@
 # Copyright (C) 2020 Ghifari Pradana & Weixuan Zhang
 #
 # SPDX-License-Identifier: MIT
-"""This module contains functions for plotting
-
-"""
+"""This module contains functions for plotting"""
 from datetime import timedelta
 from os import environ
 
@@ -40,9 +38,9 @@ def map_palette(station):
     """
     if station.typical_range_consistent() is False or station.latest_level is None:
         return 'gray'
-    elif station.latest_level > station.typical_range[1]:
+    if station.latest_level > station.typical_range[1]:
         return 'red'
-    elif station.latest_level < station.typical_range[0]:
+    if station.latest_level < station.typical_range[0]:
         return 'green'
     return 'blue'
 

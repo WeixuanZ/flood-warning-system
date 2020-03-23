@@ -5,12 +5,12 @@
 predicts future water levels
 
 """
+import datetime
 import os
 
 os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 
 import numpy as np
-import datetime
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 import keras
@@ -41,12 +41,12 @@ def fetch_levels(station_name, dt, return_date=False):
 
         * If return_date False
         
-            - array - Water levels.
+          - array - Water levels.
 
         * If return_date True
 
-            - list - List of dates (datetime object).
-            - array - Water levels.
+          - list - List of dates (datetime object).
+          - array - Water levels.
 
     """
     stations = build_station_list()
@@ -64,7 +64,8 @@ def fetch_levels(station_name, dt, return_date=False):
 
 def data_prep(data, lookback, exclude=0):
     """
-    Function that prepares the dataset by constructing x,y pairs. Each y is determined on the previous <lookback> data points (x).
+    Function that prepares the dataset by constructing x,y pairs.
+    Each y is determined on the previous <lookback> data points (x).
     
     Args:
         data (array): The water level data.
@@ -104,7 +105,8 @@ def build_model(lookback):
     return model
 
 
-def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/predictor_model.hdf5', show_loss=False):
+def train_model(model, x, y, batch_size, epoch,
+                save_file='./floodsystem/cache/predictor_model.hdf5', show_loss=False):
     """
     Function that trains and saves the Keras model.
     
@@ -114,7 +116,8 @@ def train_model(model, x, y, batch_size, epoch, save_file='./floodsystem/cache/p
         y (list): y.
         batch_size (int): Batch size.
         epoch (int): Number of epochs.
-        save_file (str, optional): Path to save the trained model file (default: './floodsystem/cache/predictor_model.hdf5')
+        save_file (str, optional): Path to save the trained model file
+            (default: './floodsystem/cache/predictor_model.hdf5')
         show_loss (bool, optional): Whether to display the loss-epoch graph after training.
     
     Returns:
@@ -160,23 +163,31 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
 
     If the model for that station is not cached, it will be trained according to the parameters specified.
     
-    The returned data includes actual data over the specified interval, demonstration data the model produced based on actual data points prior to the displayed actual data, and the predicted date using all the available actual data.
+    The returned data includes actual data over the specified interval,
+    demonstration data the model produced based on actual data points prior to the displayed actual data,
+    and the predicted date using all the available actual data.
     
     Args:
         station_name (str): The name of the station.
         dataset_size (int, optional): The number of days in the dataset (default: 1000).
         lookback (int, optional): Look back value (default: 2000).
-        iteration (int, optional): Number of future water levels to be predicted (effectively the number of times data in passed to the nn) (default: 100).
+        iteration (int, optional): Number of future water levels to be predicted
+            (effectively the number of times data in passed to the nn) (default: 100).
         display (int, optional): Number of real data points to be returned (default: 300).
         use_pretrained (bool, optional): Whether to used pretrained model if possible (default: True).
         batch_size (int, optional): (default: 256).
         epoch (int, optional): (default: 20).
     
     Returns:
-        tuple: 
-            2-tuple (list, list) - List of datetime objects of actual and demo data, list of datatime objects of future predicted data.
-            
-            3-tuple (list, list, list) - Lists of water levels of actual data, demo data, predicted data.
+        tuple:
+        
+        * 2-tuple (list, list)
+
+          List of datetime objects of actual and demo data,
+          list of datatime objects of future predicted data.
+        * 3-tuple (list, list, list)
+
+          Lists of water levels of actual data, demo data, predicted data.
     """
     date, levels = fetch_levels(station_name, dataset_size, return_date=True)
     scalar.fit(levels.reshape(-1, 1))  # fit the scalar on across the entire dataset

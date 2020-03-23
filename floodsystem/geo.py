@@ -32,8 +32,13 @@ def haversine(a, b):
     a_lat, a_lng = a[0], a[1]
     b_lat, b_lng = b[0], b[1]
 
-    return 2 * r * asin(sqrt(sin(radians((b_lat - a_lat) / 2)) ** 2 + cos(radians(a_lat)) * cos(radians(b_lat)) * sin(
-        radians((b_lng - a_lng) / 2)) ** 2))
+    return 2 * r * asin(
+        sqrt(sin(radians((b_lat - a_lat) / 2)) ** 2
+             + cos(radians(a_lat))
+             * cos(radians(b_lat))
+             * sin(radians((b_lng - a_lng) / 2)) ** 2
+             )
+    )
 
 
 def stations_by_distance(stations, p):
@@ -53,7 +58,8 @@ def stations_by_distance(stations, p):
 
 def stations_within_radius(stations, centre, r):
     """
-    Function that returns a list of all stations (MonitoringStation) within radius r of a geographic coordinate.
+    Function that returns a list of all stations (MonitoringStation)
+    within radius r of a geographic coordinate.
     
     Args:
         stations (list): List of stations (MonitoringStation).
@@ -69,7 +75,8 @@ def stations_within_radius(stations, centre, r):
 
 def rivers_with_station(stations):
     """
-    Function that, given a list of station objects, returns a container with the names of the rivers with a monitoring station.
+    Function that, given a list of station objects,
+    returns a container with the names of the rivers with a monitoring station.
     
     Args:
         stations (list): List of stations (MonitoringStation).
@@ -83,7 +90,8 @@ def rivers_with_station(stations):
 
 def stations_by_river(stations):
     """
-    Function that returns a dictionary that maps river names (the ‘key’) to a list of station objects on a given river.
+    Function that returns a dictionary that maps river names (the ‘key’)
+    to a list of station objects on a given river.
     
     Args:
         stations (list): List of stations (MonitoringStation).

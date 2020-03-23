@@ -20,7 +20,7 @@ def stations_level_over_threshold(stations, tol):
         tol (float): The threshold relative water level.
 
     Returns:
-        list: List of tuples in the format (station (MonitoringStation), 
+        list: List of tuples in the format (station (MonitoringStation),
         relative water level) sorted by the relative level in descending order.
     """
 

@@ -1,9 +1,7 @@
 # Copyright (C) 2018 Garth N. Wells
 #
 # SPDX-License-Identifier: MIT
-"""This module contains utility functions.
-
-"""
+"""This module contains utility functions."""
 
 
 def sorted_by_key(x, i, reverse=False):

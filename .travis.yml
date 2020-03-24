@@ -1,0 +1,43 @@
+language: python
+python:
+  - 3.5
+  - 3.6
+  - 3.7
+  - 3.8
+
+before_install:
+  - python --version
+  - pip install -U pip
+
+install:
+  - pip install pytest pytest-cov dateutils matplotlib numpy requests bokeh
+  - pip install .
+
+script:
+  - python -m pytest --cov=floodsystem/ --cov-report xml tests/
+
+  - python tasks/Task1A.py
+  - python tasks/Task1B.py
+  - python tasks/Task1C.py
+  - python tasks/Task1D.py
+  - python Map.py
+  - python tasks/Task1E.py
+  - python tasks/Task1F.py
+
+  - python tasks/Task2A.py
+  - python tasks/Task2B.py
+  - python tasks/Task2C.py
+  - python tasks/Task2D.py
+  - python tasks/Task2E.py
+
+after_success:   
+  # Install deepsource CLI
+  - curl https://deepsource.io/cli | sh
+   
+  # Report coverage artifact to 'test-coverage' analyzer
+  - ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always

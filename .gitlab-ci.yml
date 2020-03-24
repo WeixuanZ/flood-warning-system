@@ -5,7 +5,7 @@ test:
   # Install Python packages required to run code. Add any additional
   # packages your code needs require here.
   - pip install dateutils flake8 matplotlib numpy pytest requests bokeh
-  - pip install -e .
+  - pip install .
 
   # flake8 static code and style testing. Enable for extra testing.
   # - python -m flake8 .

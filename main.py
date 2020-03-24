@@ -5,8 +5,9 @@
 import logging
 from collections import defaultdict
 from datetime import timedelta
-from functools import reduce
+from functools import partial, reduce
 from os import environ
+from threading import Thread
 
 import numpy as np
 from bokeh.layouts import layout, column, row
@@ -30,7 +31,7 @@ from floodsystem.stationdata import build_station_list, update_water_levels
 logger = logging.getLogger('main')
 logger.setLevel(logging.INFO)
 
-## Fetching and preparing data
+# Fetching and preparing data
 
 stations = build_station_list()
 update_water_levels(stations)
@@ -75,7 +76,7 @@ source = convert_to_datasource(stations)
 # building a hash table for quick search up of indices
 name_to_indx = {i: indx for indx, i in enumerate(source.data['name'])}
 
-## Map
+# Map
 
 origin = (52.2070, 0.1131)
 options = GMapOptions(lat=origin[0], lng=origin[1], map_type="roadmap", zoom=11)
@@ -96,7 +97,7 @@ location_map.plot_width = 700
 location_map.plot_height = 500
 location_map.sizing_mode = 'scale_width'
 
-## Selected station plot
+# Selected station plot
 
 select_input = TextInput(value="Cambridge Jesus Lock", title="Name of station:")
 select_text = Div(
@@ -167,7 +168,7 @@ selected_plot.plot_height = 350
 selected_plot.plot_width = 600
 selected_plot.sizing_mode = 'scale_width'
 
-## High risk stations
+# High risk stations
 
 highrisk_title = Div(
     text="""<h3>High Risk Stations</h3>
@@ -176,37 +177,17 @@ highrisk_title = Div(
 highrisk_plots = plot_water_levels_multiple(highrisk_stations, dt=10, width=250, height=250)
 highrisk_plots.sizing_mode = 'scale_width'
 
-## Prediction
+# Prediction
+
+# Main code is wrapped in the prediction_func()
 
 predict_text = Div(
     text="""<p>Choose one of the high risk stations to see the prediction by a recurrent neural network
         and least-squares polynomial fit.</p>"""
 )
+predicting_text = Div(text="""<p><i>Prediction is running...</i></p>""")
 
-predict_date = []
-predict_level = []
-predict_plots = []
-for station in highrisk_stations:
-    try:
-        date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
-                              use_pretrained=True, batch_size=256, epoch=20)
-    except Exception:
-        date, level = ([], []), ([], [], [])
-    predict_plot = plot_prediction(date, level)
-    try:
-        poly, d0 = polyfit(date[0], level[0], 4)
-        predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])], line_width=2,
-                          line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
-    except TypeError:
-        logger.error('No data for polyfit')
-    predict_plot.plot_width = 400
-    predict_plot.plot_height = 400
-    predict_plot.sizing_mode = 'scale_width'
-    predict_plots.append(Panel(child=predict_plot, title=station.name))
-
-predict_tabs = Tabs(tabs=predict_plots)
-
-## Warning
+# Warning
 
 warning_text = Div(
     text="""<h3>Flooding Warnings</h3>
@@ -366,7 +347,7 @@ else:
     risky_river_table = blank
     risky_town_table = blank
 
-## Layout
+# Layout
 
 map_column = column(location_map, width=700, height=500)
 
@@ -376,7 +357,7 @@ select_column.sizing_mode = "fixed"
 highrisk_column = column(highrisk_title, highrisk_plots, width=800, height=650)
 highrisk_column.sizing_mode = "fixed"
 
-predict_column = column(predict_text, predict_tabs, width=500, height=650)
+predict_column = column(predict_text, predicting_text, width=500, height=650)
 predict_column.sizing_mode = "fixed"
 
 warning_column.sizing_mode = "fixed"
@@ -398,5 +379,49 @@ page_layout = layout([
     [notice]
 ])
 
-curdoc().add_root(page_layout)
-curdoc().title = "Flood Warning System"
+doc = curdoc()
+doc.add_root(page_layout)
+doc.title = "Flood Warning System"
+
+
+# Run prediction in a new thread
+
+def update_layout(old, new):
+    """Function that updates the interface layout."""
+    old.children = new.children
+
+
+def prediction_func():
+    """Function that wraps the prediction code."""
+    predict_plots = []
+    for i, station in enumerate(highrisk_stations):
+        try:
+            date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
+                                  use_pretrained=True, batch_size=256, epoch=20)
+        except Exception:
+            date, level = ([], []), ([], [], [])
+        predict_plot = plot_prediction(date, level)
+        try:
+            poly, d0 = polyfit(date[0], level[0], 4)
+            predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])],
+                              line_width=2,
+                              line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
+        except TypeError:
+            logger.error('No data for polyfit')
+        predict_plot.plot_width = 400
+        predict_plot.plot_height = 400
+        predict_plot.sizing_mode = 'scale_width'
+        predict_plots.append(Panel(child=predict_plot, title=station.name))
+        predicting_text = Div(text='<p><i>Prediction is running... {:.0%}</i></p>'.format(i / 6))
+        doc.add_next_tick_callback(partial(update_layout,
+                                           old=predict_column,
+                                           new=column(predict_text, predicting_text, width=500, height=650)))
+
+    predict_tabs = Tabs(tabs=predict_plots)
+    doc.add_next_tick_callback(partial(update_layout,
+                                       old=predict_column,
+                                       new=column(predict_text, predict_tabs, width=500, height=650)))
+
+
+thread = Thread(target=prediction_func)
+thread.start()

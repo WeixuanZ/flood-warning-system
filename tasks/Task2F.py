@@ -19,8 +19,11 @@ def run():
 
     for station in high_risk_stations:
         dates, levels = fetch_measure_levels(station.measure_id, dt=timedelta(days=2))
-        graph = plot_water_level_with_fit(station, dates, levels, 4)
-        show(graph)
+        try:
+            graph = plot_water_level_with_fit(station, dates, levels, 4)
+            show(graph)
+        except TypeError:
+            print('No data')
 
 
 if __name__ == "__main__":

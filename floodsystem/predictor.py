@@ -106,7 +106,7 @@ def build_model(lookback):
 
 
 def train_model(model, x, y, batch_size, epoch,
-                save_file='./floodsystem/cache/predictor_model.hdf5', show_loss=False):
+                save_file='./cache/predictor_model.hdf5', show_loss=False):
     """
     Function that trains and saves the Keras model.
     
@@ -117,7 +117,7 @@ def train_model(model, x, y, batch_size, epoch,
         batch_size (int): Batch size.
         epoch (int): Number of epochs.
         save_file (str, optional): Path to save the trained model file
-            (default: './floodsystem/cache/predictor_model.hdf5')
+            (default: './cache/predictor_model.hdf5')
         show_loss (bool, optional): Whether to display the loss-epoch graph after training.
     
     Returns:
@@ -131,7 +131,7 @@ def train_model(model, x, y, batch_size, epoch,
     try:
         model.save(save_file)
     except OSError:
-        os.mkdir('./floodsystem/cache')
+        os.mkdir('./cache')
         model.save(save_file)
     return model
 
@@ -153,7 +153,7 @@ def train_all(stations, dataset_size=1000, lookback=2000, batch_size=256, epoch=
         scalar.fit(levels.reshape(-1, 1))  # fit the scalar on across the entire dataset
         x_train, y_train = data_prep(levels, lookback)
         train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
-                    save_file='./floodsystem/cache/{}.hdf5'.format(station.name))
+                    save_file='./cache/{}.hdf5'.format(station.name))
 
 
 def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, display=300, use_pretrained=True,
@@ -194,17 +194,17 @@ def predict(station_name, dataset_size=1000, lookback=2000, iteration=100, displ
 
     if use_pretrained:
         try:
-            model = keras.models.load_model('./floodsystem/cache/{}.hdf5'.format(station_name))
+            model = keras.models.load_model('./cache/{}.hdf5'.format(station_name))
         except Exception:
             print('No pre-trained model for {} found, training a model for it now.'.format(station_name))
             x_train, y_train = data_prep(levels, lookback)
             model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
-                                save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
+                                save_file='./cache/{}.hdf5'.format(station_name))
     else:
         print('Training a model for {} now.'.format(station_name))
         x_train, y_train = data_prep(levels, lookback)
         model = train_model(build_model(lookback), x_train, y_train, batch_size, epoch,
-                            save_file='./floodsystem/cache/{}.hdf5'.format(station_name))
+                            save_file='./cache/{}.hdf5'.format(station_name))
 
     # prediction of future <iteration> readings, based on the last <lookback> values
     predictions = None

@@ -399,6 +399,7 @@ def prediction_func():
             date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
                                   use_pretrained=True, batch_size=256, epoch=20)
         except Exception:
+            logger.error('NN prediction failed')
             date, level = ([], []), ([], [], [])
         predict_plot = plot_prediction(date, level)
         try:

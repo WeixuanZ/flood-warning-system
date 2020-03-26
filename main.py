@@ -28,6 +28,8 @@ from floodsystem.plot import map_palette, plot_water_levels_dynamic, plot_water_
 from floodsystem.predictor import predict
 from floodsystem.stationdata import build_station_list, update_water_levels
 
+ON_SERVER = environ.get('ON_SERVER') == 'true'  # if the app is running on server, if so disable nn prediction
+
 logger = logging.getLogger('main')
 logger.setLevel(logging.INFO)
 
@@ -185,7 +187,12 @@ predict_text = Div(
     text="""<p>Choose one of the high risk stations to see the prediction by a recurrent neural network
         and least-squares polynomial fit.</p>"""
 )
-predicting_text = Div(text="""<p><i>Prediction is running...</i></p>""")
+
+if not ON_SERVER:
+    predicting_text = Div(text="""<p><i>Prediction is running...</i></p>""")
+else:
+    predicting_text = Div(text="""<i>Please note that due to limited processing power
+        and lack of GPUs on the server, this part is suppressed.</i>""")
 
 # Warning
 
@@ -383,46 +390,45 @@ doc = curdoc()
 doc.add_root(page_layout)
 doc.title = "Flood Warning System"
 
-
 # Run prediction in a new thread
+if not ON_SERVER:
+    def update_layout(old, new):
+        """Function that updates the interface layout."""
+        old.children = new.children
 
-def update_layout(old, new):
-    """Function that updates the interface layout."""
-    old.children = new.children
 
+    def prediction_func():
+        """Function that wraps the prediction code."""
+        predict_plots = []
+        for i, station in enumerate(highrisk_stations):
+            try:
+                date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
+                                      use_pretrained=True, batch_size=256, epoch=20)
+            except Exception:
+                logger.error('NN prediction failed')
+                date, level = ([], []), ([], [], [])
+            predict_plot = plot_prediction(date, level)
+            try:
+                poly, d0 = polyfit(date[0], level[0], 4)
+                predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])],
+                                  line_width=2,
+                                  line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
+            except TypeError:
+                logger.error('No data for polyfit')
+            predict_plot.plot_width = 400
+            predict_plot.plot_height = 400
+            predict_plot.sizing_mode = 'scale_width'
+            predict_plots.append(Panel(child=predict_plot, title=station.name))
+            predicting_text = Div(text='<p><i>Prediction is running... {:.0%}</i></p>'.format(i / 6))
+            doc.add_next_tick_callback(partial(update_layout,
+                                               old=predict_column,
+                                               new=column(predict_text, predicting_text, width=500, height=650)))
 
-def prediction_func():
-    """Function that wraps the prediction code."""
-    predict_plots = []
-    for i, station in enumerate(highrisk_stations):
-        try:
-            date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
-                                  use_pretrained=True, batch_size=256, epoch=20)
-        except Exception:
-            logger.error('NN prediction failed')
-            date, level = ([], []), ([], [], [])
-        predict_plot = plot_prediction(date, level)
-        try:
-            poly, d0 = polyfit(date[0], level[0], 4)
-            predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])],
-                              line_width=2,
-                              line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
-        except TypeError:
-            logger.error('No data for polyfit')
-        predict_plot.plot_width = 400
-        predict_plot.plot_height = 400
-        predict_plot.sizing_mode = 'scale_width'
-        predict_plots.append(Panel(child=predict_plot, title=station.name))
-        predicting_text = Div(text='<p><i>Prediction is running... {:.0%}</i></p>'.format(i / 6))
+        predict_tabs = Tabs(tabs=predict_plots)
         doc.add_next_tick_callback(partial(update_layout,
                                            old=predict_column,
-                                           new=column(predict_text, predicting_text, width=500, height=650)))
-
-    predict_tabs = Tabs(tabs=predict_plots)
-    doc.add_next_tick_callback(partial(update_layout,
-                                       old=predict_column,
-                                       new=column(predict_text, predict_tabs, width=500, height=650)))
+                                           new=column(predict_text, predict_tabs, width=500, height=650)))
 
 
-thread = Thread(target=prediction_func)
-thread.start()
+    thread = Thread(target=prediction_func)
+    thread.start()

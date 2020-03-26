@@ -13,7 +13,9 @@ The documentation can be found [here](/docs/flood-warning-system.pdf).
 
 ## Web Interface
 
-To run the web interface, 
+A version of the web interface without neural network is available at https://flood-warning.herokuapp.com.
+
+To run the web interface locally, 
 1. Set your Google Maps API key as an environment variable through
     ```bash
     export API_KEY=<api_key>

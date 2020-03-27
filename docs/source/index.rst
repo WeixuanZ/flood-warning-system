@@ -6,6 +6,8 @@
 Flood Warning System Documentation
 ==================================
 
+|License| |DocumentationStatus| |BuildStatus| |DeepSource|
+
 .. toctree::
     :maxdepth: 2
     :caption: Contents:
@@ -20,3 +22,15 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+
+
+.. |License| image:: https://img.shields.io/github/license/WeixuanZ/flood-warning-system
+
+.. |DocumentationStatus| image:: https://readthedocs.org/projects/flood-warning-system/badge/?version=latest
+   :target: https://flood-warning-system.readthedocs.io/en/latest/?badge=latest
+
+.. |BuildStatus| image:: https://travis-ci.com/WeixuanZ/flood-warning-system.svg?token=SUjKzzvXHwxxw8h3x2sj&branch=master
+   :target: https://travis-ci.com/WeixuanZ/flood-warning-system
+
+.. |DeepSource| image:: https://static.deepsource.io/deepsource-badge-light-mini.svg
+   :target: https://deepsource.io/gh/WeixuanZ/flood-warning-system/?ref=repository-badge

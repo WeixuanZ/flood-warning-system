@@ -1,16 +1,29 @@
-Introduction
-============
 
 
-Solution to the Part IA Lent Term computing activity at the Department of Engineering, University of Cambridge.
+CUED Tasks
+==========
+
+Solutions to the Part IA Lent Term computing activity at the Department
+of Engineering, University of Cambridge.
 
 The activity is documented at https://cued-partia-flood-warning.readthedocs.io/.
 
+The solutions are in the ``./tasks/``. In order to
+run them, ``floodsystem`` must be installed as a
+package:
 
-Installation
-============
+.. code:: bash
 
-To run the web interface, 
+   pip install .
+
+
+
+Web Interface
+=============
+
+A version of the web interface without neural network is available at https://flood-warning.herokuapp.com.
+
+To run the web interface locally, 
 
 1. Set your Google Maps API key as an environment variable through ``bash export API_KEY=<api_key>`` 
 2. Install all the dependencies in ``requirements.txt`` (a virtual environment is strongly recommended), then run 
@@ -34,9 +47,6 @@ To run the web interface,
 
 3. Go to ``http://localhost:5100`` from your browser.
 
-
-Web Interface
-=============
 
 Map
 ~~~
@@ -91,6 +101,9 @@ levels. This is implemented in `floodsystem.predictor` submodule.
 As can be seen from the above figure, RNN produces more realistic
 predictions, especially on periodic and exploding data.
 
+The prediction is run in a different thread to the main interface,
+allowing the rest of the interface to be loaded quickly. The progress of
+prediction is displayed when it is running.
 
 Warning
 ~~~~~~~
@@ -118,3 +131,4 @@ containing it.
 .. note::
 
     The above sections are converted to reStructuredText from README.md using pandoc.
+

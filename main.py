@@ -28,7 +28,8 @@ from floodsystem.plot import map_palette, plot_water_levels_dynamic, plot_water_
 from floodsystem.predictor import predict
 from floodsystem.stationdata import build_station_list, update_water_levels
 
-ON_SERVER = environ.get('ON_SERVER') == 'true'  # if the app is running on server, if so disable nn prediction
+# if the app is running on server, if so disable nn prediction
+ON_SERVER = environ.get('ON_SERVER') == 'true'
 
 logger = logging.getLogger('main')
 logger.setLevel(logging.INFO)
@@ -43,13 +44,13 @@ highrisk_stations = stations_highest_rel_level(stations, 6)
 def convert_to_datasource(station_list):
     """Function that converts a list of stations into a ColumnDataSource
     with all the relevant attributes as columns.
-    
+
     Args:
         station_list (list): List of stations (MonitoringStation).
-    
+
     Returns:
         ColumnDataSource: Columns includes lat, lng, name, measure_id, river, town, typical_low, typical_high,
-        latest_level, relative_level, color
+            latest_level, relative_level, color
 
     """
 
@@ -103,7 +104,7 @@ location_map.sizing_mode = 'scale_width'
 
 select_input = TextInput(value="Cambridge Jesus Lock", title="Name of station:")
 select_text = Div(
-    text="""<p>Select a station either by clicking on the map, 
+    text="""<p>Select a station either by clicking on the map,
         or using the search field below, to display its historical level.</p>"""
 )
 
@@ -314,8 +315,7 @@ if len(risky_stations) != 0:
         data=dict(key_stations=[i.name for i in key_station_in_cluster],
                   key_towns=[i.town for i in key_station_in_cluster],
                   levels=[round(i.relative_water_level(), 2) for i in key_station_in_cluster],
-                  mean=[round(i, 2) for i in mean_levels]
-                  )
+                  mean=[round(i, 2) for i in mean_levels])
     )
     warning_text3 = Div(
         text="""<p><b>{}</b> clusters found, the towns within these clusters
@@ -402,17 +402,20 @@ if not ON_SERVER:
         predict_plots = []
         for i, station in enumerate(highrisk_stations):
             try:
-                date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100, display=300,
-                                      use_pretrained=True, batch_size=256, epoch=20)
+                date, level = predict(station.name, dataset_size=1000, lookback=200, iteration=100,
+                                      display=300, use_pretrained=True, batch_size=256, epoch=20)
             except Exception:
                 logger.error('NN prediction failed')
                 date, level = ([], []), ([], [], [])
             predict_plot = plot_prediction(date, level)
             try:
                 poly, d0 = polyfit(date[0], level[0], 4)
-                predict_plot.line(date[0] + date[1], [poly(date - d0) for date in date2num(date[0] + date[1])],
+                predict_plot.line(date[0] + date[1],
+                                  [poly(date - d0) for date in date2num(date[0] + date[1])],
                                   line_width=2,
-                                  line_color='gray', legend_label='Polynomial Fit', line_dash='dashed')
+                                  line_color='gray',
+                                  legend_label='Polynomial Fit',
+                                  line_dash='dashed')
             except TypeError:
                 logger.error('No data for polyfit')
             predict_plot.plot_width = 400

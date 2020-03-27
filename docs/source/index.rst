@@ -29,7 +29,7 @@ Indices and tables
 .. |DocumentationStatus| image:: https://readthedocs.org/projects/flood-warning-system/badge/?version=latest
    :target: https://flood-warning-system.readthedocs.io/en/latest/?badge=latest
 
-.. |BuildStatus| image:: https://travis-ci.com/WeixuanZ/flood-warning-system.svg?token=SUjKzzvXHwxxw8h3x2sj&branch=master
+.. |BuildStatus| image:: https://travis-ci.com/WeixuanZ/flood-warning-system.svg?branch=master
    :target: https://travis-ci.com/WeixuanZ/flood-warning-system
 
 .. |DeepSource| image:: https://static.deepsource.io/deepsource-badge-light-mini.svg

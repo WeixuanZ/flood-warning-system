@@ -1,11 +1,11 @@
 # Flood Warning System
 
 The documentation can be found at https://flood-warning-system.readthedocs.io, 
-the PDF version is available [here](/docs/flood-warning-system.pdf).
+the PDF version is available [here](https://flood-warning-system.readthedocs.io/_/downloads/en/latest/pdf/).
 
 ![License](https://img.shields.io/github/license/WeixuanZ/flood-warning-system)
 [![Documentation Status](https://readthedocs.org/projects/flood-warning-system/badge/?version=latest)](https://flood-warning-system.readthedocs.io/en/latest/?badge=latest)
-[![Build Status](https://travis-ci.com/WeixuanZ/flood-warning-system.svg?token=SUjKzzvXHwxxw8h3x2sj&branch=master)](https://travis-ci.com/WeixuanZ/flood-warning-system)
+[![Build Status](https://travis-ci.com/WeixuanZ/flood-warning-system.svg?branch=master)](https://travis-ci.com/WeixuanZ/flood-warning-system)
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/WeixuanZ/flood-warning-system/?ref=repository-badge)
 
 

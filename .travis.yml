@@ -20,7 +20,7 @@ script:
   - python tasks/Task1B.py
   - python tasks/Task1C.py
   - python tasks/Task1D.py
-  - python Map.py
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then python Map.py; fi'
   - python tasks/Task1E.py
   - python tasks/Task1F.py
 

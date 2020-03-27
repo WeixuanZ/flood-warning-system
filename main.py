@@ -16,7 +16,7 @@ from bokeh.models import ColumnDataSource, Div, TextInput, Tabs, Panel, TapTool,
 from bokeh.palettes import Spectral10, Turbo256, linear_palette
 from bokeh.plotting import curdoc, gmap
 from bokeh.transform import log_cmap
-from fuzzywuzzy import process
+from rapidfuzz import process
 from matplotlib.dates import date2num
 from sklearn.cluster import DBSCAN
 

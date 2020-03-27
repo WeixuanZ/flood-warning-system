@@ -9,13 +9,14 @@ for manipulating/modifying station data
 
 class MonitoringStation:
     """This class represents a river level monitoring station
-    
+
     Attributes:
         latest_level (float): The latest water level of the station
     """
 
-    def __init__(self, station_id, measure_id, label, coord, typical_range,
-                 river, town):
+    def __init__(
+        self, station_id, measure_id, label, coord, typical_range, river, town
+    ):
         self._station_id = station_id
         self._measure_id = measure_id
 
@@ -79,36 +80,43 @@ class MonitoringStation:
 
     def typical_range_consistent(self):
         """
-        This method checks whether the data it receives about the typical ranges are consistent(That data is available 
+        This method checks whether the data it receives about the typical ranges are consistent(That data is available
         and the low range is lower than the high range).
-        
+
         Returns:
             Boolean: Returns whether or not the data is consistent
         """
 
-        return type(self._typical_range) is tuple and self._typical_range != (0., 0.) and self._typical_range[0] < \
-            self.typical_range[1]
+        return (
+            type(self._typical_range) is tuple
+            and self._typical_range != (0.0, 0.0)
+            and self._typical_range[0] < self.typical_range[1]
+        )
 
     def relative_water_level(self):
         """
         This method returns the latest water level as a fraction of the typical range.
-        
+
         Returns:
             float: 0.0 (corresponds to a level at the typical low) to 1.0 (corresponds to a level at the typical high)
         """
 
-        return (self.latest_level - self.typical_range[0]) / (self.typical_range[1] - self.typical_range[
-            0]) if self.latest_level is not None and self.typical_range_consistent() is True else None
+        return (
+            (self.latest_level - self.typical_range[0])
+            / (self.typical_range[1] - self.typical_range[0])
+            if self.latest_level is not None and self.typical_range_consistent() is True
+            else None
+        )
 
 
 def inconsistent_typical_range_stations(stations):
     """
     This function checks takes in the list of stations and checks to make sure the typical
     range for each are consistent.
-    
+
     Args:
         stations (list): List of stations (type MonitoringStation).
-    
+
     Returns:
         list: List (type String) of all the stations with inconsistent typical ranges in alphabetical order
     """

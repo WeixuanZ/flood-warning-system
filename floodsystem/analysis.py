@@ -9,12 +9,12 @@ from matplotlib.dates import date2num
 def polyfit(dates, levels, p):
     """
     Function that finds the least-square fit polynomial from
-    
+
     Args:
         dates (list): The list of dates for the x-axis.
         levels (list): The corresponding water level for each date, y-axis.
         p (int): The degree of polynomial that is desired.
-    
+
     Returns:
         numpy poly1d Object: Contains the coefficients of the resulting polynomial
         float: The number of days since the origin of the Gregorain Calendar that was shifted to find the polynomial.

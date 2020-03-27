@@ -1,6 +1,6 @@
 # Flood Warning System
 
-The documentation can be found at https://flood-warning-system.readthedocs.io, 
+The documentation can be found at https://flood-warning-system.readthedocs.io,
 the PDF version is available [here](https://flood-warning-system.readthedocs.io/_/downloads/en/latest/pdf/).
 
 ![License](https://img.shields.io/github/license/WeixuanZ/flood-warning-system)
@@ -9,29 +9,15 @@ the PDF version is available [here](https://flood-warning-system.readthedocs.io/
 [![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/WeixuanZ/flood-warning-system/?ref=repository-badge)
 
 
-## CUED Tasks
-
-Solutions to the Part IA Lent Term computing activity at the Department of
-Engineering, University of Cambridge.
-
-The activity is documented at
-https://cued-partia-flood-warning.readthedocs.io/.
-
-The solutions are in the [`./tasks/`](/tasks/) folder. In order to run them, [`floodsystem`](/floodsystem/) must be installed as a package:
-```bash
-pip install .
-```
-
-
 ## Web Interface
 
 A version of the web interface without neural network is available at https://flood-warning.herokuapp.com.
 
-To run the web interface locally, 
+To run the web interface locally,
 1. Set your Google Maps API key as an environment variable through
     ```bash
     export API_KEY=<api_key>
-    ``` 
+    ```
 1. Install all the dependencies in [`requirements.txt`](/requirements.txt) (a virtual environment is strongly recommended), then run
     ```bash
     plaidml-setup  # set the device used for training

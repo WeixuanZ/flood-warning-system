@@ -1,23 +1,4 @@
 
-
-CUED Tasks
-==========
-
-Solutions to the Part IA Lent Term computing activity at the Department
-of Engineering, University of Cambridge.
-
-The activity is documented at https://cued-partia-flood-warning.readthedocs.io/.
-
-The solutions are in the ``./tasks/``. In order to
-run them, ``floodsystem`` must be installed as a
-package:
-
-.. code:: bash
-
-   pip install .
-
-
-
 Web Interface
 =============
 

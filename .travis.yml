@@ -29,6 +29,7 @@ script:
   - python tasks/Task2C.py
   - python tasks/Task2D.py
   - python tasks/Task2E.py
+  - python tasks/Task2F.py
 
 after_success:   
   # Install deepsource CLI
